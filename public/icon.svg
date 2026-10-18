@@ -1,5 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="100" fill="#50007c"/>
-  <path d="M160 160h192v192H160z" fill="none" stroke="#ffffff" stroke-width="32"/>
-  <circle cx="256" cy="256" r="64" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <clipPath id="brandClip">
+      <rect width="512" height="512" rx="112" fill="#50007c" />
+    </clipPath>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#ffffff" />
+  <image href="https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg" width="512" height="512" preserveAspectRatio="xMidYMid slice" clip-path="url(#brandClip)" />
 </svg>

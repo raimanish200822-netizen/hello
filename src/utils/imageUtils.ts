@@ -40,6 +40,8 @@ export function appendCacheBuster(url: string | undefined | null, versionOrTimes
   }
 }
 
+export const DEFAULT_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1593062096033-9a26b09da705?auto=format&fit=crop&w=800&q=80';
+
 /**
  * Retrieves a cache-busted image URL for frontend components.
  * If versionOrTimestamp is provided (e.g. product.updatedAt or image.version),
@@ -48,7 +50,7 @@ export function appendCacheBuster(url: string | undefined | null, versionOrTimes
 export function getCacheBustedImageUrl(
   url: string | undefined | null,
   versionOrTimestamp?: number | string,
-  fallback = ''
+  fallback = DEFAULT_FALLBACK_IMAGE
 ): string {
   if (!url || typeof url !== 'string' || !url.trim()) {
     return fallback;

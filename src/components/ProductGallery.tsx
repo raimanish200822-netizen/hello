@@ -1,7 +1,7 @@
 import React, { useState, useRef, MouseEvent } from 'react';
 import { ZoomIn, Maximize2, X, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { ProductItem } from '../types';
-import { getCacheBustedImageUrl } from '../utils/imageUtils';
+import { getCacheBustedImageUrl, DEFAULT_FALLBACK_IMAGE } from '../utils/imageUtils';
 
 interface ProductGalleryProps {
   product: ProductItem;
@@ -86,8 +86,8 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ product }) => {
         >
           {/* Base Image */}
           <img
-            src={activeImageUrl}
-            alt={activeImage.alt}
+            src={activeImageUrl || DEFAULT_FALLBACK_IMAGE}
+            alt={activeImage?.alt || product.title}
             loading="lazy"
             decoding="async"
             className={`w-full h-full object-cover transition-opacity duration-200 ${
@@ -268,8 +268,8 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ product }) => {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={activeImageUrl}
-              alt={activeImage.alt}
+              src={activeImageUrl || DEFAULT_FALLBACK_IMAGE}
+              alt={activeImage?.alt || product.title}
               style={{ transform: `scale(${lightboxScale})`, transition: 'transform 0.15s ease' }}
               className="max-h-[70vh] w-auto object-contain rounded-lg shadow-2xl"
             />

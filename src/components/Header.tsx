@@ -118,19 +118,18 @@ export const Header: React.FC<HeaderProps> = ({
               className="flex items-center gap-2.5 sm:gap-3 group cursor-pointer text-left"
             >
               <div className="relative">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#50007c] flex items-center justify-center text-white font-black text-sm sm:text-base shadow-md group-hover:scale-105 transition-transform overflow-hidden border-2 border-purple-200">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white flex items-center justify-center p-1 shadow-md group-hover:scale-105 transition-transform overflow-hidden border-2 border-purple-200">
                   <img 
-                    src={siteLogo} 
+                    src={siteLogo && siteLogo.trim() ? siteLogo.trim() : 'https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg'} 
                     alt="Shivani Graphics Logo" 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover rounded-xl"
                     onError={(e) => {
-                      const target = e.target as HTMLElement;
-                      target.style.display = 'none';
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (target.src !== 'https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg') {
+                        target.src = 'https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg';
+                      }
                     }}
                   />
-                  <div className="absolute inset-0 flex items-center justify-center bg-[#50007c] -z-10 text-white font-black">
-                    SG
-                  </div>
                 </div>
               </div>
               <div className="flex flex-col">

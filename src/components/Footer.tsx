@@ -64,12 +64,17 @@ export const Footer: React.FC<FooterProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-6 text-center space-y-2">
         <div className="flex flex-col items-center">
           <div className="flex items-center gap-2.5">
-            <div className="w-11 h-11 rounded-2xl bg-[#50007c] flex items-center justify-center overflow-hidden shadow-sm border border-purple-200">
+            <div className="w-11 h-11 rounded-2xl bg-white flex items-center justify-center p-1 overflow-hidden shadow-sm border border-purple-200">
               <img 
-                src={siteLogo} 
+                src={siteLogo && siteLogo.trim() ? siteLogo.trim() : 'https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg'} 
                 alt="Shivani Graphics" 
-                className="w-full h-full object-cover"
-                onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+                className="w-full h-full object-cover rounded-xl"
+                onError={(e) => {
+                  const target = e.currentTarget as HTMLImageElement;
+                  if (target.src !== 'https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg') {
+                    target.src = 'https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg';
+                  }
+                }}
               />
             </div>
             <div className="flex items-center font-sans font-black text-2xl sm:text-3xl tracking-tight leading-none">

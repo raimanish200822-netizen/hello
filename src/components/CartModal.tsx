@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Trash2, MessageCircle, ShoppingBag, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { CartItem } from '../types';
 import { generateMultiCartWhatsAppUrl } from '../utils/whatsapp';
+import { DEFAULT_FALLBACK_IMAGE } from '../utils/imageUtils';
 
 interface CartModalProps {
   isOpen: boolean;
@@ -101,8 +102,8 @@ export const CartModal: React.FC<CartModalProps> = ({
                         className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex gap-3 items-center justify-between"
                       >
                         <img
-                          src={item.imageUrl}
-                          alt=""
+                          src={item.imageUrl || DEFAULT_FALLBACK_IMAGE}
+                          alt={item.productTitle || 'Product'}
                           className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover border border-slate-200 shrink-0"
                         />
 
