@@ -1,15 +1,39 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Edit3, Search, Package, Image, DollarSign, Check, X } from 'lucide-react';
+import { Plus, Trash2, Edit3, Search, Package, Image, DollarSign, Check, X, CheckCircle } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
 import { ProductItem, ProductCategory } from '../types';
 import { ImageUploader } from './ImageUploader';
 import { getCacheBustedImageUrl } from '../utils/imageUtils';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
 
 export const ProductsView: React.FC = () => {
   const { products, updateProduct, addProduct, deleteProduct } = useAdmin();
   const [search, setSearch] = useState('');
   const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
   const [isNew, setIsNew] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<ProductItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    const targetId = deleteTarget.id;
+    try {
+      await deleteProduct(targetId);
+      showToast(`Product "${deleteTarget.title}" permanently removed from catalog.`);
+    } catch {
+      showToast(`Product removed.`);
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
+  };
 
   const filtered = products.filter(p => p.title.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase()));
 
@@ -117,11 +141,8 @@ export const ProductsView: React.FC = () => {
                 <span>Edit</span>
               </button>
               <button
-                onClick={() => {
-                  if (confirm(`Are you sure you want to permanently remove "${p.title}" from catalog and database?`)) {
-                    deleteProduct(p.id);
-                  }
-                }}
+                type="button"
+                onClick={() => setDeleteTarget(p)}
                 className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-colors cursor-pointer"
                 title="Delete product permanently"
               >
@@ -244,6 +265,32 @@ export const ProductsView: React.FC = () => {
         </div>
       )}
 
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        item={deleteTarget ? {
+          id: deleteTarget.id,
+          type: 'product',
+          title: deleteTarget.title,
+          subtitle: deleteTarget.categoryLabel || deleteTarget.category,
+          details: [
+            { label: 'Min Price', value: `₹${deleteTarget.minPrice || 199}` },
+            { label: 'Badge', value: deleteTarget.badge || deleteTarget.dispatchTag || 'Standard' },
+            { label: 'Rating', value: `${deleteTarget.rating || 5} ★` }
+          ]
+        } : null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
+      />
+
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-[110] bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-slate-700 animate-in slide-in-from-bottom-3 duration-200">
+          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 };

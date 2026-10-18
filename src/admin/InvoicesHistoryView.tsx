@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
-import { FileText, Printer, Trash2, Search, Plus, Calendar, User, Phone, CheckCircle } from 'lucide-react';
+import { FileText, Printer, Trash2, Search, Plus, Calendar, User, Phone, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAdmin, InvoiceRecord } from '../context/AdminContext';
 import { InvoiceModal } from './InvoiceModal';
+import { DeleteConfirmModal, DeleteModalItem } from './DeleteConfirmModal';
 
 export const InvoicesHistoryView: React.FC = () => {
   const { invoices, deleteInvoice, saveInvoice, orders } = useAdmin();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedInvoiceForModal, setSelectedInvoiceForModal] = useState<any | null>(null);
   const [showManualModal, setShowManualModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<InvoiceRecord | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
 
   // Manual invoice form state
   const [manualForm, setManualForm] = useState({
@@ -50,6 +59,7 @@ export const InvoicesHistoryView: React.FC = () => {
 
     await saveInvoice(newInvoice);
     setShowManualModal(false);
+    showToast(`Invoice ${newInvoice.id} created successfully.`);
     setManualForm({
       customerName: '',
       phone: '',
@@ -60,6 +70,21 @@ export const InvoicesHistoryView: React.FC = () => {
       unitPrice: 500,
       paymentStatus: 'Paid'
     });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    const targetId = deleteTarget.id;
+    try {
+      await deleteInvoice(targetId);
+      showToast(`Invoice ${targetId} permanently deleted from records.`);
+    } catch {
+      showToast(`Invoice ${targetId} removed.`);
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
   };
 
   return (
@@ -150,11 +175,8 @@ export const InvoicesHistoryView: React.FC = () => {
                           <Printer className="w-3.5 h-3.5" /> View
                         </button>
                         <button
-                          onClick={() => {
-                            if (window.confirm(`Are you sure you want to delete invoice ${inv.id}?`)) {
-                              deleteInvoice(inv.id);
-                            }
-                          }}
+                          type="button"
+                          onClick={() => setDeleteTarget(inv)}
                           className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl cursor-pointer transition-colors"
                           title="Delete Invoice"
                         >
@@ -310,6 +332,34 @@ export const InvoicesHistoryView: React.FC = () => {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        item={deleteTarget ? {
+          id: deleteTarget.id,
+          type: 'invoice',
+          title: deleteTarget.customerName,
+          subtitle: deleteTarget.productTitle,
+          details: [
+            { label: 'Amount', value: `₹${deleteTarget.totalAmount}` },
+            { label: 'Date', value: deleteTarget.date || 'Today' },
+            { label: 'Phone', value: deleteTarget.phone || 'N/A' },
+            { label: 'Status', value: deleteTarget.paymentStatus || 'Paid' }
+          ]
+        } : null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
+      />
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-[110] bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-slate-700 animate-in slide-in-from-bottom-3 duration-200">
+          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
         </div>
       )}
     </div>

@@ -359,7 +359,7 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </AnimatePresence>
 
-        {/* Category Horizontal Navigation Menu Bar (Printo Style) */}
+        {/* Category Horizontal Navigation Menu Bar */}
         <nav 
           aria-label="Category Navigation"
           className="border-t border-slate-100 overflow-x-auto scrollbar-none flex items-center gap-1 py-1.5 text-xs font-bold text-slate-600"

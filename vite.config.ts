@@ -14,7 +14,7 @@ export default defineConfig(() => {
         includeAssets: ['favicon.ico', 'icon.svg'],
         manifest: {
           id: '/',
-          name: 'Shivani Graphics - Printo-Style Custom Printing & Online Catalog',
+          name: 'Shivani Graphics - Custom Printing & Online Catalog',
           short_name: 'ShivaniGraphics',
           description: 'Premium commercial digital printing in Delhi NCR & Pan-India. Visiting cards, banners, standees, corporate stationery, photo frames, and customized merchandising.',
           theme_color: '#50007c',

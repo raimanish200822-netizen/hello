@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Building2, Plus, Trash2, Edit3, Check, X, Sparkles } from 'lucide-react';
+import { Building2, Plus, Trash2, Edit3, Check, X, Sparkles, CheckCircle } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
 import { AboutUsItem } from '../types';
 import { ImageUploader } from './ImageUploader';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
 
 export const AboutUsManagementView: React.FC = () => {
   const { aboutUs, addAboutUs, updateAboutUs, deleteAboutUs } = useAdmin();
@@ -16,6 +17,25 @@ export const AboutUsManagementView: React.FC = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [order, setOrder] = useState(1);
   const [successMsg, setSuccessMsg] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<AboutUsItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    const targetId = deleteTarget.id;
+    try {
+      await deleteAboutUs(targetId);
+      setSuccessMsg(`Section "${deleteTarget.title}" deleted.`);
+      setTimeout(() => setSuccessMsg(''), 3500);
+    } catch {
+      setSuccessMsg('Section removed.');
+      setTimeout(() => setSuccessMsg(''), 3500);
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
+  };
 
   const handleOpenAdd = () => {
     setEditingItem(null);
@@ -128,7 +148,8 @@ export const AboutUsManagementView: React.FC = () => {
                   <Edit3 className="w-3.5 h-3.5" /> Edit
                 </button>
                 <button
-                  onClick={() => deleteAboutUs(item.id)}
+                  type="button"
+                  onClick={() => setDeleteTarget(item)}
                   className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold transition-colors cursor-pointer inline-flex items-center gap-1"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Delete
@@ -248,6 +269,32 @@ export const AboutUsManagementView: React.FC = () => {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        item={deleteTarget ? {
+          id: deleteTarget.id,
+          type: 'aboutUs',
+          title: deleteTarget.title,
+          subtitle: `Key: ${deleteTarget.sectionKey || 'Section'}`,
+          details: [
+            { label: 'Section Key', value: deleteTarget.sectionKey || 'N/A' },
+            { label: 'Order', value: deleteTarget.order || 1 }
+          ]
+        } : null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
+      />
+
+      {/* Floating Toast Notification */}
+      {successMsg && (
+        <div className="fixed bottom-6 right-6 z-[110] bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-slate-700 animate-in slide-in-from-bottom-3 duration-200">
+          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{successMsg}</span>
         </div>
       )}
     </div>

@@ -1,12 +1,36 @@
 import React, { useState } from 'react';
-import { Image, Plus, Trash2, Edit3, Upload, Check, X } from 'lucide-react';
+import { Image, Plus, Trash2, Edit3, Upload, Check, X, CheckCircle } from 'lucide-react';
 import { useAdmin, WebsiteImage } from '../context/AdminContext';
 import { ImageUploader } from './ImageUploader';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
 
 export const BannersImagesView: React.FC = () => {
   const { websiteImages, updateWebsiteImage, addWebsiteImage, deleteWebsiteImage } = useAdmin();
   const [editingImage, setEditingImage] = useState<WebsiteImage | null>(null);
   const [isNew, setIsNew] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<WebsiteImage | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    const targetId = deleteTarget.id;
+    try {
+      await deleteWebsiteImage(targetId);
+      showToast(`Image "${deleteTarget.title}" deleted.`);
+    } catch {
+      showToast(`Image deleted.`);
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
+  };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,12 +101,9 @@ export const BannersImagesView: React.FC = () => {
                     <Edit3 className="w-3.5 h-3.5" />
                   </button>
                   <button
-                    onClick={() => {
-                      if (confirm(`Are you sure you want to delete image "${img.title}"?`)) {
-                        deleteWebsiteImage(img.id);
-                      }
-                    }}
-                    className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg cursor-pointer"
+                    type="button"
+                    onClick={() => setDeleteTarget(img)}
+                    className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg cursor-pointer transition-colors"
                     title="Delete"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -215,6 +236,31 @@ export const BannersImagesView: React.FC = () => {
         </div>
       )}
 
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        item={deleteTarget ? {
+          id: deleteTarget.id,
+          type: 'banner',
+          title: deleteTarget.title,
+          subtitle: `Section: ${deleteTarget.section || 'General'}`,
+          details: [
+            { label: 'Sort Order', value: deleteTarget.sortOrder || 1 },
+            { label: 'Status', value: deleteTarget.enabled ? 'Active (Visible)' : 'Disabled' }
+          ]
+        } : null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
+      />
+
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-[110] bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-slate-700 animate-in slide-in-from-bottom-3 duration-200">
+          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 };

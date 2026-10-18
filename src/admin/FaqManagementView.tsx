@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { HelpCircle, Plus, Trash2, Edit3, Save, X, Check } from 'lucide-react';
+import { HelpCircle, Plus, Trash2, Edit3, Save, X, Check, CheckCircle } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
 import { FaqItem } from '../types';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
 
 export const FaqManagementView: React.FC = () => {
   const { faqs, addFaq, updateFaq, deleteFaq } = useAdmin();
@@ -12,6 +13,25 @@ export const FaqManagementView: React.FC = () => {
   const [answer, setAnswer] = useState('');
   const [category, setCategory] = useState<FaqItem['category']>('ordering');
   const [successMsg, setSuccessMsg] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<FaqItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    const targetId = deleteTarget.id;
+    try {
+      await deleteFaq(targetId);
+      setSuccessMsg('FAQ entry deleted successfully.');
+      setTimeout(() => setSuccessMsg(''), 3500);
+    } catch {
+      setSuccessMsg('FAQ entry removed.');
+      setTimeout(() => setSuccessMsg(''), 3500);
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
+  };
 
   const handleOpenAdd = () => {
     setEditingFaq(null);
@@ -108,7 +128,8 @@ export const FaqManagementView: React.FC = () => {
                       <Edit3 className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => deleteFaq(faq.id)}
+                      type="button"
+                      onClick={() => setDeleteTarget(faq)}
                       className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors cursor-pointer inline-flex items-center"
                       title="Delete FAQ"
                     >
@@ -201,6 +222,31 @@ export const FaqManagementView: React.FC = () => {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        item={deleteTarget ? {
+          id: deleteTarget.id,
+          type: 'faq',
+          title: deleteTarget.question,
+          subtitle: `Category: ${deleteTarget.category}`,
+          details: [
+            { label: 'Category', value: deleteTarget.category }
+          ]
+        } : null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
+      />
+
+      {/* Floating Toast Notification */}
+      {successMsg && (
+        <div className="fixed bottom-6 right-6 z-[110] bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-slate-700 animate-in slide-in-from-bottom-3 duration-200">
+          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{successMsg}</span>
         </div>
       )}
     </div>

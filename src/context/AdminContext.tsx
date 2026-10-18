@@ -230,9 +230,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const CACHE_KEY_PRODUCTS = 'shivani_cached_products';
   const CACHE_KEY_DELETED_PRODUCTS = 'shivani_deleted_product_ids';
   const CACHE_KEY_ORDERS = 'shivani_cached_orders';
+  const CACHE_KEY_DELETED_ORDERS = 'shivani_deleted_order_ids';
   const CACHE_KEY_INVOICES = 'shivani_cached_invoices';
+  const CACHE_KEY_DELETED_INVOICES = 'shivani_deleted_invoice_ids';
   const CACHE_KEY_CUSTOMERS = 'shivani_cached_customers';
+  const CACHE_KEY_DELETED_CUSTOMERS = 'shivani_deleted_customer_ids';
   const CACHE_KEY_QUOTES = 'shivani_cached_quotes';
+  const CACHE_KEY_DELETED_QUOTES = 'shivani_deleted_quote_ids';
 
   const [products, setProducts] = useState<ProductItem[]>(() => {
     try {
@@ -253,29 +257,49 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [categories, setCategories] = useState<any[]>(CATEGORIES);
   const [orders, setOrders] = useState<AdminOrder[]>(() => {
     try {
+      const delRaw = localStorage.getItem(CACHE_KEY_DELETED_ORDERS);
+      const deletedSet = new Set<string>(delRaw ? JSON.parse(delRaw) : []);
       const saved = localStorage.getItem(CACHE_KEY_ORDERS) || localStorage.getItem('shivani_orders_db');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed.filter((o: AdminOrder) => o && o.id && !deletedSet.has(o.id));
+      }
     } catch {}
     return [];
   });
   const [invoices, setInvoices] = useState<InvoiceRecord[]>(() => {
     try {
+      const delRaw = localStorage.getItem(CACHE_KEY_DELETED_INVOICES);
+      const deletedSet = new Set<string>(delRaw ? JSON.parse(delRaw) : []);
       const saved = localStorage.getItem(CACHE_KEY_INVOICES);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed.filter((inv: InvoiceRecord) => inv && inv.id && !deletedSet.has(inv.id));
+      }
     } catch {}
     return [];
   });
   const [customers, setCustomers] = useState<AdminCustomer[]>(() => {
     try {
+      const delRaw = localStorage.getItem(CACHE_KEY_DELETED_CUSTOMERS);
+      const deletedSet = new Set<string>(delRaw ? JSON.parse(delRaw) : []);
       const saved = localStorage.getItem(CACHE_KEY_CUSTOMERS) || localStorage.getItem('shivani_customers_db');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed.filter((c: AdminCustomer) => c && c.id && !deletedSet.has(c.id));
+      }
     } catch {}
     return [];
   });
   const [quotes, setQuotes] = useState<AdminQuote[]>(() => {
     try {
+      const delRaw = localStorage.getItem(CACHE_KEY_DELETED_QUOTES);
+      const deletedSet = new Set<string>(delRaw ? JSON.parse(delRaw) : []);
       const saved = localStorage.getItem(CACHE_KEY_QUOTES);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed.filter((q: AdminQuote) => q && q.id && !deletedSet.has(q.id));
+      }
     } catch {}
     return [];
   });
@@ -304,7 +328,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [websiteContent, setWebsiteContent] = useState(() => {
     const baseContent = {
-      heroHeading: 'Shivani Graphics · Printo-Style Commercial Printing',
+      heroHeading: 'Shivani Graphics · Commercial Digital Printing Press',
       heroSubtitle: 'Premium digital printing, visiting cards, flex banners, 3D acrylic LED boards & corporate merch in Delhi NCR.',
       phone: '+91-9266944315',
       whatsapp: '919266944315',
@@ -334,6 +358,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const cached = localStorage.getItem(CACHE_KEY_CONTENT);
       if (cached) {
         const parsed = JSON.parse(cached);
+        if (parsed.heroHeading && (parsed.heroHeading.includes('Printo') || parsed.heroHeading.includes('printo'))) {
+          parsed.heroHeading = 'Shivani Graphics · Commercial Digital Printing Press';
+          try { localStorage.setItem(CACHE_KEY_CONTENT, JSON.stringify({ ...baseContent, ...parsed })); } catch {}
+        }
         return { ...baseContent, ...parsed };
       }
     } catch {}
@@ -493,52 +521,82 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     // 3. Orders Listener
     const unsubOrders = onSnapshot(collection(db, 'orders'), (snapshot) => {
-      const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as AdminOrder));
-      if (items.length > 0) {
-        setOrders(items);
-        try {
-          localStorage.setItem(CACHE_KEY_ORDERS, JSON.stringify(items));
-        } catch {}
-      }
+      let deletedSet = new Set<string>();
+      try {
+        const delRaw = localStorage.getItem(CACHE_KEY_DELETED_ORDERS);
+        if (delRaw) deletedSet = new Set(JSON.parse(delRaw));
+      } catch {}
+
+      const items = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() } as unknown as AdminOrder))
+        .filter(o => o && o.id && !deletedSet.has(o.id));
+
+      setOrders(items);
+      try {
+        localStorage.setItem(CACHE_KEY_ORDERS, JSON.stringify(items));
+        localStorage.setItem('shivani_orders_db', JSON.stringify(items));
+      } catch {}
     }, (error) => {
       handleListenerError(error, 'orders');
     });
 
     // 4. Invoices Listener
     const unsubInvoices = onSnapshot(collection(db, 'invoices'), (snapshot) => {
-      const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as InvoiceRecord));
-      if (items.length > 0) {
-        setInvoices(items);
-        try {
-          localStorage.setItem(CACHE_KEY_INVOICES, JSON.stringify(items));
-        } catch {}
-      }
+      let deletedSet = new Set<string>();
+      try {
+        const delRaw = localStorage.getItem(CACHE_KEY_DELETED_INVOICES);
+        if (delRaw) deletedSet = new Set(JSON.parse(delRaw));
+      } catch {}
+
+      const items = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() } as unknown as InvoiceRecord))
+        .filter(inv => inv && inv.id && !deletedSet.has(inv.id));
+
+      setInvoices(items);
+      try {
+        localStorage.setItem(CACHE_KEY_INVOICES, JSON.stringify(items));
+      } catch {}
     }, (error) => {
       handleListenerError(error, 'invoices');
     });
 
     // 4b. Customers Listener
     const unsubCustomers = onSnapshot(collection(db, 'customers'), (snapshot) => {
-      const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as AdminCustomer));
-      if (items.length > 0) {
-        setCustomers(items);
-        try {
-          localStorage.setItem(CACHE_KEY_CUSTOMERS, JSON.stringify(items));
-        } catch {}
-      }
+      let deletedSet = new Set<string>();
+      try {
+        const delRaw = localStorage.getItem(CACHE_KEY_DELETED_CUSTOMERS);
+        if (delRaw) deletedSet = new Set(JSON.parse(delRaw));
+      } catch {}
+
+      const items = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() } as unknown as AdminCustomer))
+        .filter(c => c && c.id && !deletedSet.has(c.id));
+
+      setCustomers(items);
+      try {
+        localStorage.setItem(CACHE_KEY_CUSTOMERS, JSON.stringify(items));
+        localStorage.setItem('shivani_customers_db', JSON.stringify(items));
+      } catch {}
     }, (error) => {
       handleListenerError(error, 'customers');
     });
 
-    // 5. Quotes Listener
+    // 5. Quotes Listener (Bulk orders & custom quotes)
     const unsubQuotes = onSnapshot(collection(db, 'quotes'), (snapshot) => {
-      const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as AdminQuote));
-      if (items.length > 0) {
-        setQuotes(items);
-        try {
-          localStorage.setItem(CACHE_KEY_QUOTES, JSON.stringify(items));
-        } catch {}
-      }
+      let deletedSet = new Set<string>();
+      try {
+        const delRaw = localStorage.getItem(CACHE_KEY_DELETED_QUOTES);
+        if (delRaw) deletedSet = new Set(JSON.parse(delRaw));
+      } catch {}
+
+      const items = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() } as unknown as AdminQuote))
+        .filter(q => q && q.id && !deletedSet.has(q.id));
+
+      setQuotes(items);
+      try {
+        localStorage.setItem(CACHE_KEY_QUOTES, JSON.stringify(items));
+      } catch {}
     }, (error) => {
       handleListenerError(error, 'quotes');
     });
@@ -839,10 +897,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       setOrders(prev => {
         const exists = prev.some(o => o.id === order.id);
-        if (exists) return prev.map(o => o.id === order.id ? order : o);
-        return [order, ...prev];
+        const next = exists ? prev.map(o => o.id === order.id ? order : o) : [order, ...prev];
+        try {
+          localStorage.setItem(CACHE_KEY_ORDERS, JSON.stringify(next));
+          localStorage.setItem('shivani_orders_db', JSON.stringify(next));
+        } catch {}
+        return next;
       });
-      await setDoc(doc(db, 'orders', order.id), order, { merge: true });
+      await setDoc(doc(db, 'orders', order.id), order, { merge: true }).catch(() => {});
       await setDoc(doc(db, 'invoices', order.id), {
         id: order.id,
         invoiceNumber: `INV-${order.id}`,
@@ -856,7 +918,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         totalAmount: order.totalAmount,
         paymentStatus: order.paymentStatus,
         date: order.date
-      }, { merge: true });
+      }, { merge: true }).catch(() => {});
       logAction(`Saved order & tracking ID: ${order.id}`, currentAdminUser?.name || 'Admin');
     } catch (e) {
       handleFirestoreError(e, OperationType.WRITE, `orders/${order.id}`);
@@ -865,8 +927,30 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const deleteOrder = async (id: string) => {
     try {
-      setOrders(prev => prev.filter(o => o.id !== id));
-      await deleteDoc(doc(db, 'orders', id));
+      // 1. Persist to deleted order IDs in localStorage
+      let deletedList: string[] = [];
+      try {
+        const raw = localStorage.getItem(CACHE_KEY_DELETED_ORDERS);
+        deletedList = raw ? JSON.parse(raw) : [];
+      } catch {}
+      if (!deletedList.includes(id)) {
+        deletedList.push(id);
+        try { localStorage.setItem(CACHE_KEY_DELETED_ORDERS, JSON.stringify(deletedList)); } catch {}
+      }
+
+      // 2. Immediately update state and cache
+      setOrders(prev => {
+        const next = prev.filter(o => o.id !== id);
+        try {
+          localStorage.setItem(CACHE_KEY_ORDERS, JSON.stringify(next));
+          localStorage.setItem('shivani_orders_db', JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+
+      // 3. Delete from Firestore & settings
+      await deleteDoc(doc(db, 'orders', id)).catch(() => {});
+      await setDoc(doc(db, 'settings', 'deleted_orders'), { ids: deletedList, updatedAt: Date.now() }, { merge: true }).catch(() => {});
       logAction(`Deleted order ID: ${id}`, currentAdminUser?.name || 'Admin');
     } catch (e) {
       handleFirestoreError(e, OperationType.DELETE, `orders/${id}`);
@@ -875,16 +959,64 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const saveInvoice = async (invoice: InvoiceRecord) => {
     try {
-      await setDoc(doc(db, 'invoices', invoice.id), invoice, { merge: true });
+      setInvoices(prev => {
+        const exists = prev.some(inv => inv.id === invoice.id);
+        const next = exists ? prev.map(inv => inv.id === invoice.id ? invoice : inv) : [invoice, ...prev];
+        try {
+          localStorage.setItem(CACHE_KEY_INVOICES, JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+      await setDoc(doc(db, 'invoices', invoice.id), invoice, { merge: true }).catch(() => {});
       logAction(`Saved invoice: ${invoice.id}`, currentAdminUser?.name || 'Admin');
     } catch (e) {
       handleFirestoreError(e, OperationType.WRITE, `invoices/${invoice.id}`);
     }
   };
 
+  const deleteInvoice = async (id: string) => {
+    try {
+      // 1. Persist to deleted invoice IDs
+      let deletedList: string[] = [];
+      try {
+        const raw = localStorage.getItem(CACHE_KEY_DELETED_INVOICES);
+        deletedList = raw ? JSON.parse(raw) : [];
+      } catch {}
+      if (!deletedList.includes(id)) {
+        deletedList.push(id);
+        try { localStorage.setItem(CACHE_KEY_DELETED_INVOICES, JSON.stringify(deletedList)); } catch {}
+      }
+
+      // 2. Immediately update state and cache
+      setInvoices(prev => {
+        const next = prev.filter(inv => inv.id !== id);
+        try {
+          localStorage.setItem(CACHE_KEY_INVOICES, JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+
+      // 3. Delete from Firestore & settings
+      await deleteDoc(doc(db, 'invoices', id)).catch(() => {});
+      await setDoc(doc(db, 'settings', 'deleted_invoices'), { ids: deletedList, updatedAt: Date.now() }, { merge: true }).catch(() => {});
+      logAction(`Deleted invoice: ${id}`, currentAdminUser?.name || 'Admin');
+    } catch (e) {
+      handleFirestoreError(e, OperationType.DELETE, `invoices/${id}`);
+    }
+  };
+
   const saveCustomer = async (customer: AdminCustomer) => {
     try {
-      await setDoc(doc(db, 'customers', customer.id), customer, { merge: true });
+      setCustomers(prev => {
+        const exists = prev.some(c => c.id === customer.id);
+        const next = exists ? prev.map(c => c.id === customer.id ? customer : c) : [customer, ...prev];
+        try {
+          localStorage.setItem(CACHE_KEY_CUSTOMERS, JSON.stringify(next));
+          localStorage.setItem('shivani_customers_db', JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+      await setDoc(doc(db, 'customers', customer.id), customer, { merge: true }).catch(() => {});
       logAction(`Saved customer: ${customer.name}`, currentAdminUser?.name || 'Admin');
     } catch (e) {
       handleFirestoreError(e, OperationType.WRITE, `customers/${customer.id}`);
@@ -893,7 +1025,30 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const deleteCustomer = async (id: string) => {
     try {
-      await deleteDoc(doc(db, 'customers', id));
+      // 1. Persist to deleted customer IDs
+      let deletedList: string[] = [];
+      try {
+        const raw = localStorage.getItem(CACHE_KEY_DELETED_CUSTOMERS);
+        deletedList = raw ? JSON.parse(raw) : [];
+      } catch {}
+      if (!deletedList.includes(id)) {
+        deletedList.push(id);
+        try { localStorage.setItem(CACHE_KEY_DELETED_CUSTOMERS, JSON.stringify(deletedList)); } catch {}
+      }
+
+      // 2. Immediately update state and cache
+      setCustomers(prev => {
+        const next = prev.filter(c => c.id !== id);
+        try {
+          localStorage.setItem(CACHE_KEY_CUSTOMERS, JSON.stringify(next));
+          localStorage.setItem('shivani_customers_db', JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+
+      // 3. Delete from Firestore & settings
+      await deleteDoc(doc(db, 'customers', id)).catch(() => {});
+      await setDoc(doc(db, 'settings', 'deleted_customers'), { ids: deletedList, updatedAt: Date.now() }, { merge: true }).catch(() => {});
       logAction(`Deleted customer ID: ${id}`, currentAdminUser?.name || 'Admin');
     } catch (e) {
       handleFirestoreError(e, OperationType.DELETE, `customers/${id}`);
@@ -902,25 +1057,23 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const updateCategory = async (category: any) => {
     try {
-      await setDoc(doc(db, 'categories', category.id), category, { merge: true });
+      await setDoc(doc(db, 'categories', category.id), category, { merge: true }).catch(() => {});
       logAction(`Updated category: ${category.label}`, currentAdminUser?.name || 'Admin');
     } catch (e) {
       handleFirestoreError(e, OperationType.WRITE, `categories/${category.id}`);
     }
   };
 
-  const deleteInvoice = async (id: string) => {
-    try {
-      await deleteDoc(doc(db, 'invoices', id));
-      logAction(`Deleted invoice: ${id}`, currentAdminUser?.name || 'Admin');
-    } catch (e) {
-      handleFirestoreError(e, OperationType.DELETE, `invoices/${id}`);
-    }
-  };
-
   const updateQuoteStatus = async (id: string, status: AdminQuote['status'], price?: number) => {
     try {
-      await updateDoc(doc(db, 'quotes', id), { status, quotedPrice: price });
+      setQuotes(prev => {
+        const next = prev.map(q => q.id === id ? { ...q, status, quotedPrice: price } : q);
+        try {
+          localStorage.setItem(CACHE_KEY_QUOTES, JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+      await updateDoc(doc(db, 'quotes', id), { status, quotedPrice: price }).catch(() => {});
       logAction(`Updated quote ${id} status to ${status}`, currentAdminUser?.name || 'Admin');
     } catch (e) {
       handleFirestoreError(e, OperationType.UPDATE, `quotes/${id}`);
@@ -929,7 +1082,29 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const deleteQuote = async (id: string) => {
     try {
-      await deleteDoc(doc(db, 'quotes', id));
+      // 1. Persist to deleted quote IDs
+      let deletedList: string[] = [];
+      try {
+        const raw = localStorage.getItem(CACHE_KEY_DELETED_QUOTES);
+        deletedList = raw ? JSON.parse(raw) : [];
+      } catch {}
+      if (!deletedList.includes(id)) {
+        deletedList.push(id);
+        try { localStorage.setItem(CACHE_KEY_DELETED_QUOTES, JSON.stringify(deletedList)); } catch {}
+      }
+
+      // 2. Immediately update state and cache
+      setQuotes(prev => {
+        const next = prev.filter(q => q.id !== id);
+        try {
+          localStorage.setItem(CACHE_KEY_QUOTES, JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+
+      // 3. Delete from Firestore & settings
+      await deleteDoc(doc(db, 'quotes', id)).catch(() => {});
+      await setDoc(doc(db, 'settings', 'deleted_quotes'), { ids: deletedList, updatedAt: Date.now() }, { merge: true }).catch(() => {});
       logAction(`Deleted quote: ${id}`, currentAdminUser?.name || 'Admin');
     } catch (e) {
       handleFirestoreError(e, OperationType.DELETE, `quotes/${id}`);

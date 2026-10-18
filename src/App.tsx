@@ -170,7 +170,7 @@ export default function App() {
       {/* 1. Top Purple Announcement Bar */}
       <TopBanner />
 
-      {/* 2. Main Printo-Style Navigation Header */}
+      {/* 2. Main Navigation Header */}
       <Header
         products={products}
         selectedCategoryId={selectedCategoryId}
@@ -329,7 +329,7 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      {/* 5. Printo-Style Footer with Dedicated Sub-Page Policy Routing */}
+      {/* 5. Shivani Graphics Footer with Dedicated Sub-Page Policy Routing */}
       <Footer
         onSelectCategory={handleSelectCategory}
         onOpenStoreModal={() => navigateTo('contact')}

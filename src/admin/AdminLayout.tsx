@@ -38,7 +38,7 @@ interface NavSection {
 }
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToWebsite, onNavigateFounder }) => {
-  const { currentAdminUser, logout, products, invoices, siteLogo, isDatabaseConnected, isQuotaExceeded, databaseLatencyMs } = useAdmin();
+  const { currentAdminUser, logout, products, invoices, orders, quotes, siteLogo, isDatabaseConnected, isQuotaExceeded, databaseLatencyMs } = useAdmin();
   const [historyStack, setHistoryStack] = useState<string[]>(['dashboard']);
   const historyRef = React.useRef(historyStack);
   historyRef.current = historyStack;
@@ -95,11 +95,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToWebsite, onNav
     {
       title: 'Operations',
       items: [
-        { id: 'orders', label: 'Orders & Tracking ID', icon: <ShoppingBag className="w-4 h-4" /> },
+        { id: 'orders', label: `Orders & Tracking (${orders.length})`, icon: <ShoppingBag className="w-4 h-4" /> },
         { id: 'crm-orders', label: 'CRM Orders Pipeline', icon: <Layers className="w-4 h-4 text-orange-400" /> },
         { id: 'customers', label: 'Customer Database', icon: <Users className="w-4 h-4 text-purple-400" /> },
         { id: 'invoices', label: `Invoice History (${invoices.length})`, icon: <FileText className="w-4 h-4" /> },
-        { id: 'quotes', label: 'Quote Requests', icon: <FileText className="w-4 h-4" /> },
+        { id: 'quotes', label: `Bulk Orders & Quotes (${quotes.length})`, icon: <FileText className="w-4 h-4" /> },
       ]
     },
     {

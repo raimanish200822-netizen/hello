@@ -3,6 +3,7 @@ import { useAdmin } from '../context/AdminContext';
 import { Package, Tag, Star, Users, FileText, ShieldCheck, Activity, Database, ExternalLink, Download, RefreshCw, Key, CheckCircle, AlertCircle, Copy, Server, Flame } from 'lucide-react';
 import firebaseConfig from '../../firebase-applet-config.json';
 import { db, storage } from '../firebase';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
 
 export const DatabaseView: React.FC = () => {
   const { isDatabaseConnected, isQuotaExceeded, databaseStatus, databaseError, databaseLatencyMs, testDatabaseConnection } = useAdmin();
@@ -326,10 +327,34 @@ export const MarketingView: React.FC = () => {
 
 export const ReviewsView: React.FC = () => {
   const { reviews, toggleReviewApproval, deleteReview } = useAdmin();
+  const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    const targetId = deleteTarget.id;
+    try {
+      await deleteReview(targetId);
+      showToast(`Review deleted successfully.`);
+    } catch {
+      showToast(`Review removed.`);
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-black text-slate-900">Customer Reviews & Testimonials Moderation</h2>
+        <h2 className="text-lg font-black text-slate-900">Customer Reviews & Testimonials Moderation ({reviews.length})</h2>
         <p className="text-xs text-slate-500">Approve reviews for public display on the homepage or delete negative/inappropriate reviews.</p>
       </div>
       <div className="space-y-3">
@@ -345,14 +370,16 @@ export const ReviewsView: React.FC = () => {
             </div>
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => toggleReviewApproval(r.id)}
                 className={`px-3 py-1.5 font-black text-xs rounded-xl cursor-pointer ${r.approved ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'}`}
               >
                 {r.approved ? 'Approved (Public)' : 'Hidden'}
               </button>
               <button
-                onClick={() => deleteReview(r.id)}
-                className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 font-black text-xs rounded-xl cursor-pointer"
+                type="button"
+                onClick={() => setDeleteTarget(r)}
+                className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 font-black text-xs rounded-xl cursor-pointer transition-colors"
               >
                 Delete
               </button>
@@ -360,6 +387,32 @@ export const ReviewsView: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        item={deleteTarget ? {
+          id: deleteTarget.id,
+          type: 'review',
+          title: `Review by ${deleteTarget.name}`,
+          subtitle: `Rating: ${deleteTarget.rating} ★`,
+          details: [
+            { label: 'Date', value: deleteTarget.date || 'Recent' },
+            { label: 'Status', value: deleteTarget.approved ? 'Approved' : 'Hidden' }
+          ]
+        } : null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
+      />
+
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-[110] bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-slate-700 animate-in slide-in-from-bottom-3 duration-200">
+          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 };

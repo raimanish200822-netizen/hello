@@ -58,7 +58,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-[#50007c] font-bold text-xs uppercase tracking-wider mb-1">
-              <span>Printo-Inspired Commercial Catalog</span>
+              <span>Commercial Printing Catalog</span>
               <span>•</span>
               <span className="text-emerald-600">Zero-Form WhatsApp Checkout</span>
             </div>

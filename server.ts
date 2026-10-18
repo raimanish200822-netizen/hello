@@ -159,7 +159,7 @@ function loadDb() {
       { id: 'img-2', title: 'Outdoor Flex Banner', section: 'Hero', url: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1200&q=80', alt: 'Flex Banners', enabled: true, sortOrder: 2 }
     ],
     content: {
-      heroHeading: 'Shivani Graphics · Printo-Style Commercial Printing',
+      heroHeading: 'Shivani Graphics · Commercial Digital Printing Press',
       heroSubtitle: 'Premium digital printing, visiting cards, flex banners, 3D acrylic LED boards & corporate merch in Delhi NCR.',
       phone: '+91-9266944315',
       whatsapp: '919266944315',
@@ -201,7 +201,7 @@ async function startServer() {
         model: 'gemini-3.8-flash',
         contents: contents,
         config: {
-          systemInstruction: 'You are Shivani AI, the expert customer support and print advisor assistant for Shivani Graphics (a premier Printo-style commercial printing service in Delhi NCR). You help customers with visiting cards, flex banners, corporate gifts, signage, document printing, file uploads, bulk quotes, and store pickups in Mahavir Enclave, New Delhi. Be polite, professional, and helpful.'
+          systemInstruction: 'You are Shivani AI, the expert customer support and print advisor assistant for Shivani Graphics (a premier commercial printing service in Delhi NCR). You help customers with visiting cards, flex banners, corporate gifts, signage, document printing, file uploads, bulk quotes, and store pickups in Mahavir Enclave, New Delhi. Be polite, professional, and helpful.'
         }
       });
 

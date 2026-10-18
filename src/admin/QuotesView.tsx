@@ -1,16 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FileText, CheckCircle, XCircle, Clock, Trash2, Mail, Phone, Calendar } from 'lucide-react';
-import { useAdmin } from '../context/AdminContext';
+import { useAdmin, AdminQuote } from '../context/AdminContext';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
 
 export const QuotesView: React.FC = () => {
   const { quotes, updateQuoteStatus, deleteQuote } = useAdmin();
+  const [deleteTarget, setDeleteTarget] = useState<AdminQuote | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    const targetId = deleteTarget.id;
+    try {
+      await deleteQuote(targetId);
+      showToast(`Bulk order inquiry ${targetId} permanently deleted.`);
+    } catch {
+      showToast(`Bulk order inquiry removed.`);
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-black text-slate-900">Custom & Bulk Quote Inquiries ({quotes.length})</h2>
-          <p className="text-xs text-slate-500">Corporate bulk printing inquiries submitted via frontend catalog & quote modal.</p>
+          <h2 className="text-lg font-black text-slate-900">Bulk Orders & Custom Quote Inquiries ({quotes.length})</h2>
+          <p className="text-xs text-slate-500">Corporate bulk printing and quote inquiries submitted via website catalog & corporate inquiry desk.</p>
         </div>
       </div>
 
@@ -84,11 +108,8 @@ export const QuotesView: React.FC = () => {
                   </button>
                 )}
                 <button
-                  onClick={() => {
-                    if (window.confirm('Are you sure you want to delete this quote inquiry?')) {
-                      deleteQuote(q.id);
-                    }
-                  }}
+                  type="button"
+                  onClick={() => setDeleteTarget(q)}
                   className="p-2 bg-slate-100 hover:bg-red-100 text-slate-500 hover:text-red-600 rounded-xl transition-colors cursor-pointer"
                   title="Delete quote inquiry"
                 >
@@ -97,6 +118,34 @@ export const QuotesView: React.FC = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        item={deleteTarget ? {
+          id: deleteTarget.id,
+          type: 'quote',
+          title: deleteTarget.customerName,
+          subtitle: `Product: ${deleteTarget.service}`,
+          details: [
+            { label: 'Estimated Qty', value: deleteTarget.quantity },
+            { label: 'Phone', value: deleteTarget.phone || 'N/A' },
+            { label: 'Date', value: deleteTarget.date || 'Today' },
+            { label: 'Status', value: deleteTarget.status }
+          ]
+        } : null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
+      />
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-[110] bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-slate-700 animate-in slide-in-from-bottom-3 duration-200">
+          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
         </div>
       )}
     </div>

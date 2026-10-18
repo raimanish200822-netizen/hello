@@ -76,10 +76,10 @@ export const PrintoHomeFeed: React.FC<PrintoHomeFeedProps> = ({
   const [firestoreCategories] = useState<any[]>([]);
 
   const getLocalAuthorId = () => {
-    let id = localStorage.getItem('printo_author_id');
+    let id = localStorage.getItem('customer_author_id') || localStorage.getItem('printo_author_id');
     if (!id) {
       id = 'usr_' + Math.random().toString(36).substring(2, 11);
-      localStorage.setItem('printo_author_id', id);
+      localStorage.setItem('customer_author_id', id);
     }
     return id;
   };

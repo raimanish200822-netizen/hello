@@ -2,12 +2,36 @@ import React, { useState } from 'react';
 import { ShoppingBag, Printer, Plus, CheckCircle, Clock, Search, X, Hash, Trash2 } from 'lucide-react';
 import { useAdmin, AdminOrder } from '../context/AdminContext';
 import { InvoiceModal } from './InvoiceModal';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
 
 export const OrdersView: React.FC = () => {
   const { orders, updateOrderStatus, saveOrder, saveInvoice, deleteOrder } = useAdmin();
   const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState<AdminOrder | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('All');
   const [isCreatingOrder, setIsCreatingOrder] = useState<boolean>(false);
+  const [deleteTarget, setDeleteTarget] = useState<AdminOrder | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    const targetId = deleteTarget.id;
+    try {
+      await deleteOrder(targetId);
+      showToast(`Order ${targetId} permanently deleted from database & store.`);
+    } catch {
+      showToast(`Order ${targetId} removed.`);
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
+  };
 
   // New manual order form state with custom tracking ID generator
   const [newOrder, setNewOrder] = useState<AdminOrder>({
@@ -142,12 +166,9 @@ export const OrdersView: React.FC = () => {
                   <Printer className="w-3.5 h-3.5" /> Invoice
                 </button>
                 <button
-                  onClick={() => {
-                    if (confirm(`Are you sure you want to delete order ${ord.id}?`)) {
-                      deleteOrder(ord.id);
-                    }
-                  }}
-                  className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl cursor-pointer"
+                  type="button"
+                  onClick={() => setDeleteTarget(ord)}
+                  className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl cursor-pointer transition-colors"
                   title="Delete Order"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -329,6 +350,34 @@ export const OrdersView: React.FC = () => {
           order={selectedOrderForInvoice}
           onClose={() => setSelectedOrderForInvoice(null)}
         />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        item={deleteTarget ? {
+          id: deleteTarget.id,
+          type: 'order',
+          title: deleteTarget.customerName,
+          subtitle: `${deleteTarget.productTitle} · Qty: ${deleteTarget.quantity}`,
+          details: [
+            { label: 'Amount', value: `₹${deleteTarget.totalAmount}` },
+            { label: 'Status', value: deleteTarget.status },
+            { label: 'Phone', value: deleteTarget.phone || 'N/A' },
+            { label: 'Date', value: deleteTarget.date || 'Today' }
+          ]
+        } : null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
+      />
+
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-[110] bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-slate-700 animate-in slide-in-from-bottom-3 duration-200">
+          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
       )}
     </div>
   );

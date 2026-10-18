@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { Image, Trash2, Upload, Check, Sparkles, RefreshCw } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
 import { ImageUploader } from './ImageUploader';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
 
 export const LogoSettingsView: React.FC = () => {
   const { siteLogo, updateSiteLogo, deleteSiteLogo } = useAdmin();
   const [logoInput, setLogoInput] = useState(siteLogo);
   const [isSaved, setIsSaved] = useState(false);
+  const [showConfirmReset, setShowConfirmReset] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,12 +19,16 @@ export const LogoSettingsView: React.FC = () => {
     setTimeout(() => setIsSaved(false), 2500);
   };
 
-  const handleResetDefault = async () => {
-    if (confirm('Are you sure you want to reset logo to the permanent Shivani Graphics branding logo?')) {
+  const handleConfirmReset = async () => {
+    setIsResetting(true);
+    try {
       await deleteSiteLogo();
       setLogoInput('https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg');
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 2500);
+    } finally {
+      setIsResetting(false);
+      setShowConfirmReset(false);
     }
   };
 
@@ -88,7 +95,7 @@ export const LogoSettingsView: React.FC = () => {
 
             <button
               type="button"
-              onClick={handleResetDefault}
+              onClick={() => setShowConfirmReset(true)}
               className="w-full sm:w-auto px-5 py-3 bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs rounded-2xl transition-all cursor-pointer flex items-center justify-center gap-2 border border-red-200"
             >
               <Trash2 className="w-4 h-4" /> Delete / Reset to Default Logo
@@ -110,6 +117,24 @@ export const LogoSettingsView: React.FC = () => {
           </ul>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={showConfirmReset}
+        item={{
+          id: 'site-logo',
+          type: 'banner',
+          title: 'Reset Brand Logo',
+          subtitle: 'Revert to original default Shivani Graphics logo branding',
+          details: [
+            { label: 'Target', value: 'Website & Invoice Logo' },
+            { label: 'Action', value: 'Reset to Permanent Default' }
+          ]
+        }}
+        onClose={() => setShowConfirmReset(false)}
+        onConfirm={handleConfirmReset}
+        isDeleting={isResetting}
+      />
     </div>
   );
 };

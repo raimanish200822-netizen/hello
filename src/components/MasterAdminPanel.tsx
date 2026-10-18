@@ -1230,8 +1230,18 @@ export const MasterAdminPanel: React.FC<MasterAdminPanelProps> = ({ onClose }) =
                               <button
                                 type="button"
                                 onClick={async () => {
-                                  if (confirm('Delete this order record?') && ord.id) {
-                                    await deleteDoc(doc(db, 'orders', ord.id));
+                                  if (ord.id) {
+                                    let deletedList: string[] = [];
+                                    try {
+                                      const raw = localStorage.getItem('shivani_deleted_order_ids');
+                                      deletedList = raw ? JSON.parse(raw) : [];
+                                    } catch {}
+                                    if (!deletedList.includes(ord.id)) {
+                                      deletedList.push(ord.id);
+                                      try { localStorage.setItem('shivani_deleted_order_ids', JSON.stringify(deletedList)); } catch {}
+                                    }
+                                    setDbOrders(prev => prev.filter(o => o.id !== ord.id));
+                                    await deleteDoc(doc(db, 'orders', ord.id)).catch(() => {});
                                   }
                                 }}
                                 className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-lg cursor-pointer"

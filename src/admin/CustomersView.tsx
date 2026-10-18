@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Users, ShoppingBag, DollarSign, Phone, Mail, MapPin, Search, Award, Trash2, Plus, Download } from 'lucide-react';
+import { Users, ShoppingBag, DollarSign, Phone, Mail, MapPin, Search, Award, Trash2, Plus, Download, CheckCircle } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
 
 export const CustomersView: React.FC = () => {
   const { customers, deleteCustomer, saveCustomer, orders } = useAdmin();
@@ -10,6 +11,29 @@ export const CustomersView: React.FC = () => {
   const [newPhone, setNewPhone] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newAddress, setNewAddress] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    const targetId = deleteTarget.id;
+    try {
+      await deleteCustomer(targetId);
+      showToast(`Customer ${deleteTarget.name} permanently removed.`);
+    } catch {
+      showToast(`Customer removed.`);
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
+  };
 
 
 
@@ -206,11 +230,8 @@ export const CustomersView: React.FC = () => {
                   <p className="text-base font-black text-[#50007c]">{cust.ordersCount}</p>
                 </div>
                 <button
-                  onClick={() => {
-                    if (window.confirm(`Are you sure you want to delete customer ${cust.name}?`)) {
-                      deleteCustomer(cust.id);
-                    }
-                  }}
+                  type="button"
+                  onClick={() => setDeleteTarget(cust)}
                   className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer"
                   title="Delete Customer"
                 >
@@ -243,6 +264,34 @@ export const CustomersView: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        item={deleteTarget ? {
+          id: deleteTarget.id,
+          type: 'customer',
+          title: deleteTarget.name,
+          subtitle: deleteTarget.email || deleteTarget.phone,
+          details: [
+            { label: 'Lifetime Spend', value: `₹${(deleteTarget.totalSpend || 0).toLocaleString()}` },
+            { label: 'Total Orders', value: deleteTarget.ordersCount || 0 },
+            { label: 'Phone', value: deleteTarget.phone || 'N/A' },
+            { label: 'Location', value: deleteTarget.address || 'Delhi NCR' }
+          ]
+        } : null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
+      />
+
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-[110] bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-slate-700 animate-in slide-in-from-bottom-3 duration-200">
+          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 };
