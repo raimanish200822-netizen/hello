@@ -102,7 +102,15 @@ export const FloatingWhatsApp: React.FC = () => {
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <div className="w-10 h-10 rounded-full overflow-hidden bg-white border border-white/30 flex items-center justify-center shrink-0">
-                    <img src={siteLogo} alt="Logo" className="w-full h-full object-cover" />
+                    <img 
+                      src={siteLogo && !siteLogo.includes('sanishtech.com') ? siteLogo : '/icon.svg'} 
+                      alt="Logo" 
+                      className="w-full h-full object-cover" 
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        if (!target.src.endsWith('/icon.svg')) target.src = '/icon.svg';
+                      }}
+                    />
                   </div>
                   <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-300 border-2 border-emerald-700 rounded-full" />
                 </div>
@@ -147,7 +155,15 @@ export const FloatingWhatsApp: React.FC = () => {
               {/* Agent Welcome Message */}
               <div className="flex items-start gap-2 max-w-[88%]">
                 <div className="w-7 h-7 rounded-full overflow-hidden bg-white shadow-xs shrink-0 flex items-center justify-center border border-emerald-200">
-                  <img src={siteLogo} alt="Logo" className="w-full h-full object-cover" />
+                  <img 
+                    src={siteLogo && !siteLogo.includes('sanishtech.com') ? siteLogo : '/icon.svg'} 
+                    alt="Logo" 
+                    className="w-full h-full object-cover" 
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (!target.src.endsWith('/icon.svg')) target.src = '/icon.svg';
+                    }}
+                  />
                 </div>
                 <div className="bg-white p-3 rounded-2xl rounded-tl-xs shadow-xs border border-slate-200/80 space-y-1">
                   <p className="font-semibold text-slate-800 leading-relaxed">
@@ -175,7 +191,15 @@ export const FloatingWhatsApp: React.FC = () => {
                     className="flex items-center gap-2"
                   >
                     <div className="w-7 h-7 rounded-full overflow-hidden bg-white shadow-xs shrink-0 flex items-center justify-center border border-emerald-300 ring-2 ring-emerald-500/20">
-                      <img src={siteLogo} alt="Logo" className="w-full h-full object-cover" />
+                      <img 
+                        src={siteLogo && !siteLogo.includes('sanishtech.com') ? siteLogo : '/icon.svg'} 
+                        alt="Logo" 
+                        className="w-full h-full object-cover" 
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement;
+                          if (!target.src.endsWith('/icon.svg')) target.src = '/icon.svg';
+                        }}
+                      />
                     </div>
                     <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-xs shadow-md border border-emerald-100 flex items-center gap-2.5 relative overflow-hidden">
                       <span className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600 animate-pulse" />

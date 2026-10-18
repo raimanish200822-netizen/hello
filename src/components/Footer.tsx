@@ -66,13 +66,13 @@ export const Footer: React.FC<FooterProps> = ({
           <div className="flex items-center gap-2.5">
             <div className="w-11 h-11 rounded-2xl bg-white flex items-center justify-center p-1 overflow-hidden shadow-sm border border-purple-200">
               <img 
-                src={siteLogo && siteLogo.trim() ? siteLogo.trim() : 'https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg'} 
+                src={siteLogo && siteLogo.trim() && !siteLogo.includes('sanishtech.com') ? siteLogo.trim() : '/icon.svg'} 
                 alt="Shivani Graphics" 
                 className="w-full h-full object-cover rounded-xl"
                 onError={(e) => {
                   const target = e.currentTarget as HTMLImageElement;
-                  if (target.src !== 'https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg') {
-                    target.src = 'https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg';
+                  if (!target.src.endsWith('/icon.svg')) {
+                    target.src = '/icon.svg';
                   }
                 }}
               />

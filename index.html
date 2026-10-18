@@ -5,30 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shivani Graphics - Custom Printing & Online Catalog</title>
     <meta name="description" content="Premium commercial digital printing in Delhi NCR & Pan-India. Visiting cards, flex banners, standees, corporate stationery, and customized merchandising." />
+    
+    <!-- OpenGraph Social Share Card Tags (WhatsApp, Facebook, LinkedIn, iMessage) -->
+    <meta property="og:type" content="website" />
     <meta property="og:title" content="Shivani Graphics - Custom Printing & Online Catalog" />
     <meta property="og:description" content="Premium commercial digital printing in Delhi NCR & Pan-India. Visiting cards, flex banners, standees, corporate stationery, and customized merchandising." />
     <meta property="og:site_name" content="Shivani Graphics" />
-    <meta property="og:image" content="https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg" />
-    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="Shivani Graphics - High Definition Commercial Printing & Signage Delhi NCR" />
+
+    <!-- Twitter / X Card Tags -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Shivani Graphics - Custom Printing & Online Catalog" />
     <meta name="twitter:description" content="Premium commercial digital printing in Delhi NCR & Pan-India. Visiting cards, flex banners, standees, corporate stationery, and customized merchandising." />
-    <meta name="twitter:image" content="https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg" />
+    <meta name="twitter:image" content="/og-image.png" />
+    <meta name="twitter:image:alt" content="Shivani Graphics - Commercial Printing Delhi NCR" />
+
+    <!-- PWA & Mobile Web App Meta -->
     <meta name="theme-color" content="#50007c" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <link rel="icon" type="image/jpeg" href="https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg" />
-    <link rel="apple-touch-icon" href="https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg" />
-    <link rel="shortcut icon" href="https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg" />
+    <meta name="apple-mobile-web-app-title" content="ShivaniPrint" />
+
+    <!-- Browser Favicons & App Icons -->
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="/icon.svg" />
+
+    <!-- Preconnect & Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Schema.org JSON-LD Structured Data for LocalBusiness -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Shivani Graphics",
+      "image": "/og-image.png",
+      "telephone": "+91-9266944315",
+      "email": "shivanidigitalprints@gmail.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "D3/50, Gali No. 8A, Mahavir Enclave",
+        "addressLocality": "New Delhi",
+        "addressRegion": "Delhi",
+        "postalCode": "110045",
+        "addressCountry": "IN"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 28.5992,
+        "longitude": 77.0864
+      },
+      "url": "/",
+      "priceRange": "₹₹",
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+          "opens": "09:30",
+          "closes": "21:30"
+        }
+      ]
+    }
+    </script>
   </head>
-  <body class="font-sans antialiased bg-slate-50 text-slate-900 selection:bg-blue-600 selection:text-white">
+  <body class="font-sans antialiased bg-slate-50 text-slate-900 selection:bg-purple-700 selection:text-white">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

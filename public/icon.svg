@@ -1,9 +1,65 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" width="512" height="512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <clipPath id="brandClip">
-      <rect width="512" height="512" rx="112" fill="#50007c" />
-    </clipPath>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3d0061" />
+      <stop offset="50%" stop-color="#50007c" />
+      <stop offset="100%" stop-color="#7913b8" />
+    </linearGradient>
+    <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff7b00" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+    <linearGradient id="whiteGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#f1f5f9" />
+    </linearGradient>
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
   </defs>
-  <rect width="512" height="512" rx="112" fill="#ffffff" />
-  <image href="https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg" width="512" height="512" preserveAspectRatio="xMidYMid slice" clip-path="url(#brandClip)" />
+
+  <!-- Background Squircle / Rounded Container -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <rect x="12" y="12" width="488" height="488" rx="100" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="4" />
+
+  <!-- Subtle Decorative Geometric Background Highlights -->
+  <circle cx="430" cy="80" r="160" fill="rgba(255,123,0,0.12)" />
+  <circle cx="80" cy="430" r="140" fill="rgba(121,19,184,0.3)" />
+
+  <!-- Main SG Monogram Graphic (Centered) -->
+  <g filter="url(#dropShadow)" transform="translate(96, 75)">
+    <!-- 'S' Element (Crisp Pure White) -->
+    <path d="M 120 40 L 40 40 C 18 40 0 58 0 80 L 0 115 C 0 137 18 155 40 155 L 100 155 C 111 155 120 164 120 175 L 120 195 C 120 206 111 215 100 215 L 20 215 C 9 215 0 206 0 195 L 0 180" 
+          fill="none" 
+          stroke="url(#whiteGrad)" 
+          stroke-width="36" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" />
+
+    <!-- 'G' Element (Vibrant Orange & Gold) -->
+    <path d="M 280 80 C 275 50 245 40 220 40 L 195 40 C 160 40 140 65 140 100 L 140 160 C 140 195 160 215 200 215 L 255 215 C 280 215 300 195 300 170 L 300 135 L 210 135" 
+          fill="none" 
+          stroke="url(#orangeGrad)" 
+          stroke-width="36" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" />
+          
+    <!-- Accent Orange Arrow / Dot -->
+    <circle cx="210" cy="135" r="10" fill="#ffffff" />
+  </g>
+
+  <!-- Brand Typography: SHIVANI GRAPHICS -->
+  <g text-anchor="middle">
+    <text x="256" y="380" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-size="44" font-weight="900" fill="#ffffff" letter-spacing="4">
+      SHIVANI
+    </text>
+    <text x="256" y="420" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-size="24" font-weight="800" fill="#ff9e2c" letter-spacing="8">
+      GRAPHICS
+    </text>
+    
+    <!-- Tagline: PRINT • DESIGN • QUALITY -->
+    <text x="256" y="456" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" fill="rgba(255,255,255,0.7)" letter-spacing="3">
+      PRINT · DESIGN · QUALITY
+    </text>
+  </g>
 </svg>

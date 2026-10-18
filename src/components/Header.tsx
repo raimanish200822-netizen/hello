@@ -120,13 +120,13 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="relative">
                 <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white flex items-center justify-center p-1 shadow-md group-hover:scale-105 transition-transform overflow-hidden border-2 border-purple-200">
                   <img 
-                    src={siteLogo && siteLogo.trim() ? siteLogo.trim() : 'https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg'} 
+                    src={siteLogo && siteLogo.trim() && !siteLogo.includes('sanishtech.com') ? siteLogo.trim() : '/icon.svg'} 
                     alt="Shivani Graphics Logo" 
                     className="w-full h-full object-cover rounded-xl"
                     onError={(e) => {
                       const target = e.currentTarget as HTMLImageElement;
-                      if (target.src !== 'https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg') {
-                        target.src = 'https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg';
+                      if (!target.src.endsWith('/icon.svg')) {
+                        target.src = '/icon.svg';
                       }
                     }}
                   />

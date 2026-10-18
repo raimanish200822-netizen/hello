@@ -204,8 +204,14 @@ interface AdminContextType {
   auditLogs: AuditLog[];
   visitorStats: VisitorStats;
   siteLogo: string;
+  shareLogo: string;
+  appIcon: string;
   updateSiteLogo: (url: string) => Promise<void>;
+  updateShareLogo: (url: string) => Promise<void>;
+  updateAppIcon: (url: string) => Promise<void>;
+  updateBrandingSettings: (settings: { siteLogo?: string; shareLogo?: string; appIcon?: string }) => Promise<void>;
   deleteSiteLogo: () => Promise<void>;
+  resetBrandingToDefault: () => Promise<void>;
   logAction: (action: string, adminName: string) => void;
   isFirebaseLoading: boolean;
   isDatabaseConnected: boolean;
@@ -225,6 +231,19 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Local Cache keys to eliminate flash of old images/data on page load
   const CACHE_KEY_LOGO = 'shivani_cached_site_logo';
+  const CACHE_KEY_SHARE_LOGO = 'shivani_cached_share_logo';
+  const CACHE_KEY_APP_ICON = 'shivani_cached_app_icon';
+  const DEFAULT_SITE_LOGO = '/logo.svg';
+  const DEFAULT_SHARE_LOGO = '/og-image.png';
+  const DEFAULT_APP_ICON = '/icon.svg';
+
+  const sanitizeLogoUrl = (url?: string | null, fallback: string = DEFAULT_SITE_LOGO): string => {
+    if (!url || typeof url !== 'string' || !url.trim()) return fallback;
+    const trimmed = url.trim();
+    if (trimmed.includes('sanishtech.com') || trimmed.includes('Image Expired')) return fallback;
+    return trimmed;
+  };
+
   const CACHE_KEY_BANNERS = 'shivani_cached_website_images';
   const CACHE_KEY_CONTENT = 'shivani_cached_website_content';
   const CACHE_KEY_PRODUCTS = 'shivani_cached_products';
@@ -307,9 +326,25 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [siteLogo, setSiteLogo] = useState<string>(() => {
     try {
       const cached = localStorage.getItem(CACHE_KEY_LOGO);
-      if (cached && cached.trim()) return cached;
+      return sanitizeLogoUrl(cached, DEFAULT_SITE_LOGO);
     } catch {}
-    return 'https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg';
+    return DEFAULT_SITE_LOGO;
+  });
+
+  const [shareLogo, setShareLogo] = useState<string>(() => {
+    try {
+      const cached = localStorage.getItem(CACHE_KEY_SHARE_LOGO);
+      return sanitizeLogoUrl(cached, DEFAULT_SHARE_LOGO);
+    } catch {}
+    return DEFAULT_SHARE_LOGO;
+  });
+
+  const [appIcon, setAppIcon] = useState<string>(() => {
+    try {
+      const cached = localStorage.getItem(CACHE_KEY_APP_ICON);
+      return sanitizeLogoUrl(cached, DEFAULT_APP_ICON);
+    } catch {}
+    return DEFAULT_APP_ICON;
   });
 
   const [websiteImages, setWebsiteImages] = useState<WebsiteImage[]>(() => {
@@ -715,18 +750,46 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       handleFirestoreError(error, OperationType.GET, 'analytics/visitor_stats');
     });
 
-    // 13. Logo Branding Listener
+    // 13. Logo & Branding Settings Listener
     const unsubLogo = onSnapshot(doc(db, 'settings', 'branding'), (docSnap) => {
-      if (docSnap.exists() && docSnap.data().url) {
-        const logoUrl = docSnap.data().url;
-        setSiteLogo(logoUrl);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const validSiteLogo = sanitizeLogoUrl(data.url || data.siteLogo, DEFAULT_SITE_LOGO);
+        const validShareLogo = sanitizeLogoUrl(data.shareLogo, DEFAULT_SHARE_LOGO);
+        const validAppIcon = sanitizeLogoUrl(data.appIcon, DEFAULT_APP_ICON);
+
+        setSiteLogo(validSiteLogo);
+        setShareLogo(validShareLogo);
+        setAppIcon(validAppIcon);
+
         try {
-          localStorage.setItem(CACHE_KEY_LOGO, logoUrl);
+          localStorage.setItem(CACHE_KEY_LOGO, validSiteLogo);
+          localStorage.setItem(CACHE_KEY_SHARE_LOGO, validShareLogo);
+          localStorage.setItem(CACHE_KEY_APP_ICON, validAppIcon);
         } catch {}
+
+        // If the document had expired URLs, auto-migrate to permanent defaults
+        const rawUrl = data.url || data.siteLogo || '';
+        const rawShare = data.shareLogo || '';
+        const rawApp = data.appIcon || '';
+        if (rawUrl.includes('sanishtech.com') || rawShare.includes('sanishtech.com') || rawApp.includes('sanishtech.com')) {
+          setDoc(doc(db, 'settings', 'branding'), {
+            url: validSiteLogo,
+            siteLogo: validSiteLogo,
+            shareLogo: validShareLogo,
+            appIcon: validAppIcon
+          }, { merge: true }).catch(() => {});
+        }
       } else {
-        const defaultLogo = 'https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg';
-        setDoc(doc(db, 'settings', 'branding'), { url: defaultLogo }, { merge: true }).catch(() => {});
-        setSiteLogo(defaultLogo);
+        setDoc(doc(db, 'settings', 'branding'), {
+          url: DEFAULT_SITE_LOGO,
+          siteLogo: DEFAULT_SITE_LOGO,
+          shareLogo: DEFAULT_SHARE_LOGO,
+          appIcon: DEFAULT_APP_ICON
+        }, { merge: true }).catch(() => {});
+        setSiteLogo(DEFAULT_SITE_LOGO);
+        setShareLogo(DEFAULT_SHARE_LOGO);
+        setAppIcon(DEFAULT_APP_ICON);
       }
     }, (error) => {
       handleFirestoreError(error, OperationType.GET, 'settings/branding');
@@ -751,32 +814,121 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, []);
 
+  // Dynamically synchronize HTML head tags with live branding settings
+  useEffect(() => {
+    // 1. Social Share Image (OpenGraph & Twitter Cards)
+    const effectiveShareImg = shareLogo && !shareLogo.includes('sanishtech.com') ? shareLogo : DEFAULT_SHARE_LOGO;
+    const ogImgMeta = document.querySelector('meta[property="og:image"]');
+    if (ogImgMeta) ogImgMeta.setAttribute('content', effectiveShareImg);
+    const twitterImgMeta = document.querySelector('meta[name="twitter:image"]');
+    if (twitterImgMeta) twitterImgMeta.setAttribute('content', effectiveShareImg);
+
+    // 2. Favicon & Apple Touch Icon (PWA & browser tabs)
+    const effectiveAppIcon = appIcon && !appIcon.includes('sanishtech.com') ? appIcon : DEFAULT_APP_ICON;
+    const appleIconLink = document.querySelector('link[rel="apple-touch-icon"]');
+    if (appleIconLink) appleIconLink.setAttribute('href', effectiveAppIcon.endsWith('.svg') ? '/apple-touch-icon.png' : effectiveAppIcon);
+    const faviconLink = document.querySelector('link[rel="icon"]');
+    if (faviconLink) faviconLink.setAttribute('href', effectiveAppIcon);
+    const shortcutLink = document.querySelector('link[rel="shortcut icon"]');
+    if (shortcutLink) shortcutLink.setAttribute('href', effectiveAppIcon);
+  }, [siteLogo, shareLogo, appIcon]);
+
   const updateSiteLogo = async (url: string) => {
+    const cleanUrl = sanitizeLogoUrl(url, DEFAULT_SITE_LOGO);
     try {
-      setSiteLogo(url);
+      setSiteLogo(cleanUrl);
       try {
-        localStorage.setItem(CACHE_KEY_LOGO, url);
+        localStorage.setItem(CACHE_KEY_LOGO, cleanUrl);
       } catch {}
-      await setDoc(doc(db, 'settings', 'branding'), { url }, { merge: true });
-      logAction(`Updated site logo branding`, currentAdminUser?.name || 'Admin');
+      await setDoc(doc(db, 'settings', 'branding'), { url: cleanUrl, siteLogo: cleanUrl }, { merge: true });
+      logAction(`Updated website header/footer logo`, currentAdminUser?.name || 'Admin');
     } catch (e) {
       handleFirestoreError(e, OperationType.WRITE, 'settings/branding');
     }
   };
 
-  const deleteSiteLogo = async () => {
+  const updateShareLogo = async (url: string) => {
+    const cleanUrl = sanitizeLogoUrl(url, DEFAULT_SHARE_LOGO);
     try {
-      const defaultLogo = 'https://img.sanishtech.com/u/5467f9a9329e92601bbe9217b2523cff.jpg';
-      setSiteLogo(defaultLogo);
+      setShareLogo(cleanUrl);
+      try {
+        localStorage.setItem(CACHE_KEY_SHARE_LOGO, cleanUrl);
+      } catch {}
+      await setDoc(doc(db, 'settings', 'branding'), { shareLogo: cleanUrl }, { merge: true });
+      logAction(`Updated social share link card image`, currentAdminUser?.name || 'Admin');
+    } catch (e) {
+      handleFirestoreError(e, OperationType.WRITE, 'settings/branding');
+    }
+  };
+
+  const updateAppIcon = async (url: string) => {
+    const cleanUrl = sanitizeLogoUrl(url, DEFAULT_APP_ICON);
+    try {
+      setAppIcon(cleanUrl);
+      try {
+        localStorage.setItem(CACHE_KEY_APP_ICON, cleanUrl);
+      } catch {}
+      await setDoc(doc(db, 'settings', 'branding'), { appIcon: cleanUrl }, { merge: true });
+      logAction(`Updated app download & PWA icon`, currentAdminUser?.name || 'Admin');
+    } catch (e) {
+      handleFirestoreError(e, OperationType.WRITE, 'settings/branding');
+    }
+  };
+
+  const updateBrandingSettings = async (settings: { siteLogo?: string; shareLogo?: string; appIcon?: string }) => {
+    try {
+      const updates: Record<string, string> = {};
+      if (settings.siteLogo !== undefined) {
+        const cleanSite = sanitizeLogoUrl(settings.siteLogo, DEFAULT_SITE_LOGO);
+        setSiteLogo(cleanSite);
+        try { localStorage.setItem(CACHE_KEY_LOGO, cleanSite); } catch {}
+        updates.url = cleanSite;
+        updates.siteLogo = cleanSite;
+      }
+      if (settings.shareLogo !== undefined) {
+        const cleanShare = sanitizeLogoUrl(settings.shareLogo, DEFAULT_SHARE_LOGO);
+        setShareLogo(cleanShare);
+        try { localStorage.setItem(CACHE_KEY_SHARE_LOGO, cleanShare); } catch {}
+        updates.shareLogo = cleanShare;
+      }
+      if (settings.appIcon !== undefined) {
+        const cleanApp = sanitizeLogoUrl(settings.appIcon, DEFAULT_APP_ICON);
+        setAppIcon(cleanApp);
+        try { localStorage.setItem(CACHE_KEY_APP_ICON, cleanApp); } catch {}
+        updates.appIcon = cleanApp;
+      }
+      if (Object.keys(updates).length > 0) {
+        await setDoc(doc(db, 'settings', 'branding'), updates, { merge: true });
+        logAction(`Updated branding & logo assets`, currentAdminUser?.name || 'Admin');
+      }
+    } catch (e) {
+      handleFirestoreError(e, OperationType.WRITE, 'settings/branding');
+    }
+  };
+
+  const resetBrandingToDefault = async () => {
+    try {
+      setSiteLogo(DEFAULT_SITE_LOGO);
+      setShareLogo(DEFAULT_SHARE_LOGO);
+      setAppIcon(DEFAULT_APP_ICON);
       try {
         localStorage.removeItem(CACHE_KEY_LOGO);
+        localStorage.removeItem(CACHE_KEY_SHARE_LOGO);
+        localStorage.removeItem(CACHE_KEY_APP_ICON);
       } catch {}
-      await setDoc(doc(db, 'settings', 'branding'), { url: defaultLogo }, { merge: true });
-      logAction(`Reset site logo branding to default`, currentAdminUser?.name || 'Admin');
+      await setDoc(doc(db, 'settings', 'branding'), {
+        url: DEFAULT_SITE_LOGO,
+        siteLogo: DEFAULT_SITE_LOGO,
+        shareLogo: DEFAULT_SHARE_LOGO,
+        appIcon: DEFAULT_APP_ICON
+      }, { merge: true });
+      logAction(`Reset all branding logos to official defaults`, currentAdminUser?.name || 'Admin');
     } catch (e) {
       handleFirestoreError(e, OperationType.DELETE, 'settings/branding');
     }
   };
+
+  const deleteSiteLogo = resetBrandingToDefault;
 
   const login = (user: AdminUser) => {
     setIsAdminLoggedIn(true);
@@ -1341,8 +1493,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       auditLogs,
       visitorStats,
       siteLogo,
+      shareLogo,
+      appIcon,
       updateSiteLogo,
+      updateShareLogo,
+      updateAppIcon,
+      updateBrandingSettings,
       deleteSiteLogo,
+      resetBrandingToDefault,
       logAction,
       isFirebaseLoading,
       isDatabaseConnected,

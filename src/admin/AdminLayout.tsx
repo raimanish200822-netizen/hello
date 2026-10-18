@@ -169,7 +169,15 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToWebsite, onNav
         <div className="p-5 border-b border-slate-800 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <div className="h-12 w-12 rounded-xl overflow-hidden bg-white flex items-center justify-center p-1 shadow-lg">
-              <img src={siteLogo} alt="Shivani Graphics" className="w-full h-full object-cover rounded-lg" />
+              <img 
+                src={siteLogo && !siteLogo.includes('sanishtech.com') ? siteLogo : '/icon.svg'} 
+                alt="Shivani Graphics" 
+                className="w-full h-full object-cover rounded-lg"
+                onError={(e) => {
+                  const target = e.currentTarget as HTMLImageElement;
+                  if (!target.src.endsWith('/icon.svg')) target.src = '/icon.svg';
+                }}
+              />
             </div>
             <div className="flex flex-col">
               <span className="font-black text-xs sm:text-sm tracking-tight leading-none">
@@ -246,7 +254,15 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToWebsite, onNav
             </button>
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg overflow-hidden bg-white border border-purple-200 flex items-center justify-center">
-                <img src={siteLogo} alt="Logo" className="w-full h-full object-cover" />
+                <img 
+                  src={siteLogo && !siteLogo.includes('sanishtech.com') ? siteLogo : '/icon.svg'} 
+                  alt="Logo" 
+                  className="w-full h-full object-cover" 
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement;
+                    if (!target.src.endsWith('/icon.svg')) target.src = '/icon.svg';
+                  }}
+                />
               </div>
               <span className="font-black text-sm text-slate-900">Admin Studio</span>
             </div>

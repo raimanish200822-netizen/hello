@@ -4,14 +4,18 @@ import fs from 'fs';
 import path from 'path';
 import { GoogleGenAI } from '@google/genai';
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
+const getAiClient = () => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return null;
+  return new GoogleGenAI({
+    apiKey,
+    httpOptions: {
+      headers: {
+        'User-Agent': 'aistudio-build',
+      }
     }
-  }
-});
+  });
+};
 
 const DB_FILE = path.resolve(process.cwd(), 'db.json');
 
@@ -192,13 +196,18 @@ async function startServer() {
         return res.status(400).json({ error: 'Invalid messages array' });
       }
 
+      const ai = getAiClient();
+      if (!ai) {
+        return res.status(503).json({ error: 'GEMINI_API_KEY environment variable is not configured.' });
+      }
+
       const contents = messages.map((msg: any) => ({
         role: msg.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: msg.text }]
       }));
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
+        model: 'gemini-2.5-flash',
         contents: contents,
         config: {
           systemInstruction: 'You are Shivani AI, the expert customer support and print advisor assistant for Shivani Graphics (a premier commercial printing service in Delhi NCR). You help customers with visiting cards, flex banners, corporate gifts, signage, document printing, file uploads, bulk quotes, and store pickups in Mahavir Enclave, New Delhi. Be polite, professional, and helpful.'
