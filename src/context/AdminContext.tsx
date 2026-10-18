@@ -233,9 +233,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const CACHE_KEY_LOGO = 'shivani_cached_site_logo';
   const CACHE_KEY_SHARE_LOGO = 'shivani_cached_share_logo';
   const CACHE_KEY_APP_ICON = 'shivani_cached_app_icon';
-  const DEFAULT_SITE_LOGO = '/logo.svg';
+  const DEFAULT_SITE_LOGO = '/official_logo.jpg';
   const DEFAULT_SHARE_LOGO = '/og-image.png';
-  const DEFAULT_APP_ICON = '/icon.svg';
+  const DEFAULT_APP_ICON = '/pwa-512x512.png';
 
   const sanitizeLogoUrl = (url?: string | null, fallback: string = DEFAULT_SITE_LOGO): string => {
     if (!url || typeof url !== 'string' || !url.trim()) return fallback;
@@ -356,7 +356,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     } catch {}
     return [
-      { id: 'img-1', title: 'Homepage Hero Main', section: 'Hero', url: 'https://images.unsplash.com/photo-1593062096033-9a26b09da705?auto=format&fit=crop&w=1200&q=80', alt: 'Visiting Cards', enabled: true, sortOrder: 1 },
+      { id: 'img-1', title: 'Shivani Graphics – High Quality Printing for Every Need.', section: 'Hero', url: '/official_hero_banner.jpg', alt: 'Shivani Graphics Printing', enabled: true, sortOrder: 1 },
       { id: 'img-2', title: 'Outdoor Flex Banner', section: 'Hero', url: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1200&q=80', alt: 'Flex Banners', enabled: true, sortOrder: 2 }
     ];
   });

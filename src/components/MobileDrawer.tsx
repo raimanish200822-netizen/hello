@@ -153,13 +153,13 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
               <div className="flex items-center gap-2.5">
                 <div className="w-10 h-10 rounded-xl overflow-hidden bg-white p-0.5 flex items-center justify-center shadow-xs">
                   <img 
-                    src={siteLogo && siteLogo.trim() && !siteLogo.includes('sanishtech.com') ? siteLogo.trim() : '/icon.svg'} 
+                    src={siteLogo && siteLogo.trim() && !siteLogo.includes('sanishtech.com') ? siteLogo.trim() : '/official_logo.jpg'} 
                     alt="Shivani Graphics" 
                     className="w-full h-full object-cover rounded-lg" 
                     onError={(e) => {
                       const target = e.currentTarget as HTMLImageElement;
-                      if (!target.src.endsWith('/icon.svg')) {
-                        target.src = '/icon.svg';
+                      if (!target.src.endsWith('/official_logo.jpg')) {
+                        target.src = '/official_logo.jpg';
                       }
                     }}
                   />

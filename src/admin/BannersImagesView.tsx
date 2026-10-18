@@ -49,7 +49,7 @@ export const BannersImagesView: React.FC = () => {
       id: `img-${Date.now()}`,
       title: 'New Website Banner',
       section: 'Hero',
-      url: 'https://images.unsplash.com/photo-1593062096033-9a26b09da705?auto=format&fit=crop&w=1200&q=80',
+      url: '/official_hero_banner.jpg',
       alt: 'Banner',
       enabled: true,
       sortOrder: websiteImages.length + 1

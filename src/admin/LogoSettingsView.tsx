@@ -101,9 +101,9 @@ export const LogoSettingsView: React.FC = () => {
     setIsResetting(true);
     try {
       await resetBrandingToDefault();
-      setWebLogoInput('/logo.svg');
+      setWebLogoInput('/official_logo.jpg');
       setShareLogoInput('/og-image.png');
-      setAppIconInput('/icon.svg');
+      setAppIconInput('/pwa-512x512.png');
       triggerSaveNotification('Reset all brand logos to official Shivani Graphics assets!');
     } finally {
       setIsResetting(false);
@@ -276,13 +276,13 @@ export const LogoSettingsView: React.FC = () => {
             <button
               type="button"
               onClick={() => {
-                setWebLogoInput('/logo.svg');
-                updateSiteLogo('/logo.svg');
-                triggerSaveNotification('Set to official SVG logo!');
+                setWebLogoInput('/official_logo.jpg');
+                updateSiteLogo('/official_logo.jpg');
+                triggerSaveNotification('Set to official Shivani Graphics logo!');
               }}
               className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-[#50007c] text-xs font-bold rounded-xl border border-purple-200 transition cursor-pointer shrink-0"
             >
-              Use Official Vector SVG
+              Use Official Logo
             </button>
           </div>
 
@@ -301,7 +301,7 @@ export const LogoSettingsView: React.FC = () => {
                       alt="Logo preview" 
                       className="w-full h-full object-contain"
                       onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src = '/icon.svg';
+                        (e.currentTarget as HTMLImageElement).src = '/official_logo.jpg';
                       }}
                     />
                   </div>
@@ -327,7 +327,7 @@ export const LogoSettingsView: React.FC = () => {
                       alt="Footer logo preview" 
                       className="w-full h-full object-contain"
                       onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src = '/icon.svg';
+                        (e.currentTarget as HTMLImageElement).src = '/official_logo.jpg';
                       }}
                     />
                   </div>
@@ -358,7 +358,7 @@ export const LogoSettingsView: React.FC = () => {
                 folder="branding"
               />
               <p className="text-[11px] text-slate-500">
-                Default: <code className="bg-slate-100 px-1.5 py-0.5 rounded text-[#50007c] font-mono">/logo.svg</code> (Permanent vector image, never expires).
+                Default: <code className="bg-slate-100 px-1.5 py-0.5 rounded text-[#50007c] font-mono">/official_logo.jpg</code> (Permanent high-definition official logo).
               </p>
             </div>
 
@@ -504,9 +504,9 @@ export const LogoSettingsView: React.FC = () => {
             <button
               type="button"
               onClick={() => {
-                setAppIconInput('/icon.svg');
-                updateAppIcon('/icon.svg');
-                triggerSaveNotification('Set to official SVG PWA app icon!');
+                setAppIconInput('/pwa-512x512.png');
+                updateAppIcon('/pwa-512x512.png');
+                triggerSaveNotification('Set to official Shivani Graphics app icon!');
               }}
               className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-[#50007c] text-xs font-bold rounded-xl border border-purple-200 transition cursor-pointer shrink-0"
             >
@@ -540,7 +540,7 @@ export const LogoSettingsView: React.FC = () => {
                         alt="App icon preview" 
                         className="w-full h-full object-contain rounded-xl"
                         onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).src = '/icon.svg';
+                          (e.currentTarget as HTMLImageElement).src = '/pwa-512x512.png';
                         }}
                       />
                     </div>
@@ -569,7 +569,7 @@ export const LogoSettingsView: React.FC = () => {
                       alt="App install preview" 
                       className="w-full h-full object-contain rounded-xl"
                       onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src = '/icon.svg';
+                        (e.currentTarget as HTMLImageElement).src = '/pwa-512x512.png';
                       }}
                     />
                   </div>
@@ -605,7 +605,7 @@ export const LogoSettingsView: React.FC = () => {
                 folder="branding"
               />
               <p className="text-[11px] text-slate-500">
-                Square format with 1:1 aspect ratio. Default: <code className="bg-slate-100 px-1.5 py-0.5 rounded text-[#50007c] font-mono">/icon.svg</code>.
+                Square format with 1:1 aspect ratio. Default: <code className="bg-slate-100 px-1.5 py-0.5 rounded text-[#50007c] font-mono">/pwa-512x512.png</code>.
               </p>
             </div>
 
@@ -737,9 +737,9 @@ export const LogoSettingsView: React.FC = () => {
           title: 'Reset All Brand Logos & Cards',
           subtitle: 'Revert Website Logo, WhatsApp Link Share Card, and App Download Icon to official permanent assets',
           details: [
-            { label: 'Website Logo', value: '/logo.svg (Official Vector)' },
+            { label: 'Website Logo', value: '/official_logo.jpg (Official High-Def Logo)' },
             { label: 'Share Link Card', value: '/og-image.png (1200x630 Banner)' },
-            { label: 'App Download Icon', value: '/icon.svg (PWA Icon)' }
+            { label: 'App Download Icon', value: '/pwa-512x512.png (PWA Icon)' }
           ]
         }}
         onClose={() => setShowConfirmReset(false)}

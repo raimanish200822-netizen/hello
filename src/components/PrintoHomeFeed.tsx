@@ -167,7 +167,7 @@ export const PrintoHomeFeed: React.FC<PrintoHomeFeedProps> = ({
       subtitle: 'Premium commercial printing, visiting cards, flex banners, acrylic glow signs, and custom merchandise',
       badge: '⚡ Live Store Highlight',
       minQty: 'Min. Qty: 1 unit',
-      image: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1200&q=80',
+      image: '/official_hero_banner.jpg',
       gradient: 'from-black/90 via-black/60 to-black/35',
       ctaText: 'Explore Catalog'
     },

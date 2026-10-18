@@ -170,12 +170,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToWebsite, onNav
           <div className="flex items-center gap-2.5">
             <div className="h-12 w-12 rounded-xl overflow-hidden bg-white flex items-center justify-center p-1 shadow-lg">
               <img 
-                src={siteLogo && !siteLogo.includes('sanishtech.com') ? siteLogo : '/icon.svg'} 
+                src={siteLogo && !siteLogo.includes('sanishtech.com') ? siteLogo : '/official_logo.jpg'} 
                 alt="Shivani Graphics" 
                 className="w-full h-full object-cover rounded-lg"
                 onError={(e) => {
                   const target = e.currentTarget as HTMLImageElement;
-                  if (!target.src.endsWith('/icon.svg')) target.src = '/icon.svg';
+                  if (!target.src.endsWith('/official_logo.jpg')) target.src = '/official_logo.jpg';
                 }}
               />
             </div>
@@ -255,12 +255,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToWebsite, onNav
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg overflow-hidden bg-white border border-purple-200 flex items-center justify-center">
                 <img 
-                  src={siteLogo && !siteLogo.includes('sanishtech.com') ? siteLogo : '/icon.svg'} 
+                  src={siteLogo && !siteLogo.includes('sanishtech.com') ? siteLogo : '/official_logo.jpg'} 
                   alt="Logo" 
                   className="w-full h-full object-cover" 
                   onError={(e) => {
                     const target = e.currentTarget as HTMLImageElement;
-                    if (!target.src.endsWith('/icon.svg')) target.src = '/icon.svg';
+                    if (!target.src.endsWith('/official_logo.jpg')) target.src = '/official_logo.jpg';
                   }}
                 />
               </div>

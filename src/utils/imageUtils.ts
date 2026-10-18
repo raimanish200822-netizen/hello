@@ -18,12 +18,18 @@ export function appendCacheBuster(url: string | undefined | null, versionOrTimes
     return trimmed;
   }
 
+  // If no explicit version/timestamp is provided, DO NOT generate Date.now()!
+  // Return the stable URL directly so browser memory and disk cache work instantly with zero delay!
+  if (!versionOrTimestamp) {
+    return trimmed;
+  }
+
   // Only apply to web URLs
   if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://') && !trimmed.startsWith('/')) {
     return trimmed;
   }
 
-  const version = versionOrTimestamp || Date.now();
+  const version = versionOrTimestamp;
 
   try {
     // Strip out any existing version or timestamp query parameters (?v=..., &v=..., ?t=..., &t=...)
@@ -40,7 +46,7 @@ export function appendCacheBuster(url: string | undefined | null, versionOrTimes
   }
 }
 
-export const DEFAULT_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1593062096033-9a26b09da705?auto=format&fit=crop&w=800&q=80';
+export const DEFAULT_FALLBACK_IMAGE = '/official_logo.jpg';
 
 /**
  * Retrieves a cache-busted image URL for frontend components.

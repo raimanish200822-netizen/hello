@@ -44,7 +44,7 @@ export const PWAInstallButton: React.FC = () => {
             <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-xl bg-purple-50 border border-purple-200 p-1 flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
-                  <img src={appIcon || '/icon.svg'} alt="Shivani Graphics App Icon" className="w-full h-full object-contain rounded-lg" />
+                  <img src={appIcon || '/pwa-512x512.png'} alt="Shivani Graphics App Icon" className="w-full h-full object-contain rounded-lg" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-slate-900">Install on iPhone / iPad</h3>

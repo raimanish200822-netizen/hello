@@ -103,12 +103,12 @@ export const FloatingWhatsApp: React.FC = () => {
                 <div className="relative">
                   <div className="w-10 h-10 rounded-full overflow-hidden bg-white border border-white/30 flex items-center justify-center shrink-0">
                     <img 
-                      src={siteLogo && !siteLogo.includes('sanishtech.com') ? siteLogo : '/icon.svg'} 
+                      src={siteLogo && !siteLogo.includes('sanishtech.com') ? siteLogo : '/official_logo.jpg'} 
                       alt="Logo" 
                       className="w-full h-full object-cover" 
                       onError={(e) => {
                         const target = e.currentTarget as HTMLImageElement;
-                        if (!target.src.endsWith('/icon.svg')) target.src = '/icon.svg';
+                        if (!target.src.endsWith('/official_logo.jpg')) target.src = '/official_logo.jpg';
                       }}
                     />
                   </div>
@@ -156,12 +156,12 @@ export const FloatingWhatsApp: React.FC = () => {
               <div className="flex items-start gap-2 max-w-[88%]">
                 <div className="w-7 h-7 rounded-full overflow-hidden bg-white shadow-xs shrink-0 flex items-center justify-center border border-emerald-200">
                   <img 
-                    src={siteLogo && !siteLogo.includes('sanishtech.com') ? siteLogo : '/icon.svg'} 
+                    src={siteLogo && !siteLogo.includes('sanishtech.com') ? siteLogo : '/official_logo.jpg'} 
                     alt="Logo" 
                     className="w-full h-full object-cover" 
                     onError={(e) => {
                       const target = e.currentTarget as HTMLImageElement;
-                      if (!target.src.endsWith('/icon.svg')) target.src = '/icon.svg';
+                      if (!target.src.endsWith('/official_logo.jpg')) target.src = '/official_logo.jpg';
                     }}
                   />
                 </div>
@@ -192,12 +192,12 @@ export const FloatingWhatsApp: React.FC = () => {
                   >
                     <div className="w-7 h-7 rounded-full overflow-hidden bg-white shadow-xs shrink-0 flex items-center justify-center border border-emerald-300 ring-2 ring-emerald-500/20">
                       <img 
-                        src={siteLogo && !siteLogo.includes('sanishtech.com') ? siteLogo : '/icon.svg'} 
+                        src={siteLogo && !siteLogo.includes('sanishtech.com') ? siteLogo : '/official_logo.jpg'} 
                         alt="Logo" 
                         className="w-full h-full object-cover" 
                         onError={(e) => {
                           const target = e.currentTarget as HTMLImageElement;
-                          if (!target.src.endsWith('/icon.svg')) target.src = '/icon.svg';
+                          if (!target.src.endsWith('/official_logo.jpg')) target.src = '/official_logo.jpg';
                         }}
                       />
                     </div>
