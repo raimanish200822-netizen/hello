@@ -78,7 +78,11 @@ export const BannersImagesView: React.FC = () => {
         {websiteImages.map((img) => (
           <div key={img.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs flex flex-col justify-between">
             <div className="relative">
-              <img src={img.url} alt={img.alt} className="w-full h-36 object-cover" />
+              <img 
+                src={img.url && img.url.trim() ? img.url.trim() : 'https://images.unsplash.com/photo-1593062096033-9a26b09da705?auto=format&fit=crop&w=800&q=80'} 
+                alt={img.alt || 'Shivani Banner'} 
+                className="w-full h-36 object-cover" 
+              />
               <span className="absolute top-2.5 right-2.5 px-2.5 py-0.5 bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold rounded-full">
                 {img.section}
               </span>

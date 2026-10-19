@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { usePWAInstall } from './usePWAInstall';
+import { usePWAInstall } from '../hooks/usePWAInstall';
 import { Download, Smartphone } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
 

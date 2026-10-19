@@ -21,6 +21,7 @@ import { playWelcomeVoiceGreeting, hasBeenGreeted, isVoiceMuted } from './utils/
 import { addRecentlyViewedId } from './utils/recentlyViewed';
 import { useAdmin } from './context/AdminContext';
 import { OfflineIndicator } from './components/OfflineIndicator';
+import { NotificationAlertToast } from './components/NotificationAlertToast';
 
 // Dedicated Separate Sub-Pages (Replacing Popups/Modals)
 import { TermsPage } from './components/pages/TermsPage';
@@ -373,6 +374,7 @@ export default function App() {
       />
 
       <OfflineIndicator />
+      <NotificationAlertToast />
 
     </div>
   );

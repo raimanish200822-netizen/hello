@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   X, 
   MapPin, 
@@ -22,7 +22,9 @@ import {
   RotateCcw,
   FileCheck,
   Heart,
-  User
+  User,
+  Download,
+  Bell
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ProductItem } from '../types';
@@ -30,6 +32,7 @@ import { CATEGORIES } from '../data/products';
 import { WHATSAPP_PRIMARY, PHONE_SECONDARY, SUPPORT_EMAIL, STORE_ADDRESS } from '../utils/whatsapp';
 import { PolicyRoute } from './Footer';
 import { useAdmin } from '../context/AdminContext';
+import { PWAInstallModal } from './PWAInstallModal';
 
 interface MobileDrawerProps {
   isOpen: boolean;
@@ -61,6 +64,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
   onNavigatePolicy
 }) => {
   const { siteLogo } = useAdmin();
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
   const getCategoryIcon = (id: string) => {
     switch (id) {
       case 'paper-documents': return <FileText className="w-4 h-4 text-purple-600" />;
@@ -185,6 +189,27 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
             {/* Scrollable Navigation Items */}
             <div className="flex-1 overflow-y-auto divide-y divide-slate-100 text-xs sm:text-sm font-semibold text-slate-800">
               
+              {/* App Install Highlight */}
+              <div className="p-3.5 bg-gradient-to-r from-purple-50 via-amber-50 to-orange-50 m-3 rounded-2xl border border-purple-200 shadow-2xs space-y-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-[#50007c] text-amber-300 flex items-center justify-center shrink-0 shadow-xs">
+                    <Download className="w-4 h-4 stroke-[2.5]" />
+                  </div>
+                  <div>
+                    <p className="font-black text-xs text-slate-900 leading-tight">Shivani Graphics App</p>
+                    <p className="text-[10px] text-purple-700 font-medium">Get instant phone offers & alerts</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsInstallModalOpen(true)}
+                  className="w-full py-2 px-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-98 text-white font-black text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Install App (डाउनलोड ऐप)</span>
+                </button>
+              </div>
+
               {/* Home */}
               <button
                 onClick={() => {
@@ -357,6 +382,12 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
           </motion.div>
         </div>
       )}
+
+      {/* PWA App Install Modal */}
+      <PWAInstallModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
+      />
     </AnimatePresence>
   );
 };

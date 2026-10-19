@@ -16,14 +16,19 @@ import {
   Layers,
   FileText,
   Heart,
-  Printer
+  Printer,
+  Bell,
+  Download,
+  Smartphone
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ProductItem } from '../types';
 import { CATEGORIES } from '../data/products';
 import { useAdmin } from '../context/AdminContext';
-import { PWAInstallButton } from './PWAInstallButton';
 import { getCacheBustedImageUrl } from '../utils/imageUtils';
+import { PWAInstallModal } from './PWAInstallModal';
+import { NotificationBellModal } from './NotificationBellModal';
+import { getSeenNotificationIds } from '../services/notificationService';
 
 interface HeaderProps {
   products: ProductItem[];
@@ -58,9 +63,14 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigateFounder,
   onOpenCompare
 }) => {
-  const { siteLogo } = useAdmin();
+  const { siteLogo, notifications, notificationSubscribers } = useAdmin();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+
+  const seenIds = new Set(getSeenNotificationIds());
+  const unreadCount = notifications.filter(n => !seenIds.has(n.id)).length;
 
   const filtered = searchQuery.trim()
     ? products.filter(p => 
@@ -256,9 +266,37 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             )}
 
-            <div className="hidden sm:block">
-              <PWAInstallButton />
-            </div>
+            {/* Download / Install App Button */}
+            <button
+              type="button"
+              onClick={() => setIsInstallModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-950 font-black text-xs rounded-xl shadow-xs transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+              title="Install Shivani Graphics App on Phone"
+            >
+              <Download className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span className="hidden sm:inline">Download App</span>
+              <span className="sm:hidden">App</span>
+            </button>
+
+            {/* Notification Bell with animated unread badge */}
+            <button
+              type="button"
+              onClick={() => setIsNotificationModalOpen(true)}
+              className="relative p-2 text-slate-700 hover:text-[#50007c] hover:bg-purple-50 rounded-xl transition-colors cursor-pointer"
+              aria-label={`Offers & Announcements (${unreadCount} unread)`}
+              title="Offers & Announcements"
+            >
+              <Bell className="w-5 h-5 stroke-[2.2]" />
+              {unreadCount > 0 ? (
+                <span className="absolute top-1 right-1 bg-amber-500 text-slate-950 font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center animate-bounce shadow-xs">
+                  {unreadCount}
+                </span>
+              ) : (
+                notifications.length > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-purple-600 rounded-full" />
+                )
+              )}
+            </button>
 
             {/* Mobile Search Trigger */}
             <button
@@ -386,6 +424,20 @@ export const Header: React.FC<HeaderProps> = ({
         </nav>
 
       </div>
+      
+      {/* PWA App Install Modal */}
+      <PWAInstallModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
+      />
+
+      {/* Offers & Notifications Bell Modal */}
+      <NotificationBellModal
+        isOpen={isNotificationModalOpen}
+        onClose={() => setIsNotificationModalOpen(false)}
+        notifications={notifications}
+        subscriberCount={notificationSubscribers.length}
+      />
     </header>
   );
 };

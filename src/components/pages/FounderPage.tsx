@@ -114,7 +114,7 @@ export const FounderPage: React.FC<FounderPageProps> = ({ onBackToHome, onExplor
 
               {/* Photo Display Container */}
               <div className="relative aspect-4/5 w-full rounded-xl overflow-hidden bg-gradient-to-br from-[#28003e] via-[#50007c] to-[#7915a8] flex flex-col items-center justify-center text-white border border-slate-200 shadow-inner group">
-                {founderPhoto ? (
+                {founderPhoto && founderPhoto.trim() ? (
                   <img 
                     src={founderPhoto} 
                     alt={`${founderName} - Founder of Shivani Graphics`}
@@ -249,7 +249,7 @@ export const FounderPage: React.FC<FounderPageProps> = ({ onBackToHome, onExplor
 
               {/* Facility Photo Box */}
               <div className="relative aspect-16/9 w-full rounded-xl overflow-hidden bg-slate-900 border border-slate-200 flex flex-col items-center justify-center text-white shadow-inner">
-                {companyPhoto ? (
+                {companyPhoto && companyPhoto.trim() ? (
                   <img 
                     src={companyPhoto} 
                     alt="Shivani Graphics Printing Facility - Mahavir Enclave New Delhi" 

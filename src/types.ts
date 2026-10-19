@@ -126,3 +126,28 @@ export interface OrderRecord {
   createdAt: string;
   notes?: string;
 }
+
+export interface BroadcastNotification {
+  id: string;
+  title: string;
+  message: string;
+  tag?: string; // e.g. "OFFER", "DISCOUNT", "UPDATE"
+  actionUrl?: string; // Deep link or action url
+  imageUrl?: string;
+  discountCode?: string;
+  createdAt: number;
+  sentBy?: string;
+  recipientCount?: number;
+}
+
+export interface NotificationSubscriber {
+  id: string; // deviceId
+  platform: 'android' | 'ios' | 'desktop' | string;
+  browser?: string;
+  userAgent?: string;
+  installedApp: boolean;
+  notificationsEnabled: boolean;
+  subscribedAt: string;
+  lastActive: string;
+}
+

@@ -189,7 +189,7 @@ export const FounderManagementView: React.FC<FounderManagementViewProps> = ({ on
 
               {/* Photo Live Preview Frame */}
               <div className="w-full max-w-[220px] mx-auto aspect-4/5 rounded-xl overflow-hidden bg-gradient-to-br from-[#28003e] via-[#50007c] to-[#7915a8] flex flex-col items-center justify-center text-white border border-purple-300 shadow-sm relative group">
-                {form.founderImageUrl ? (
+                {Boolean(form.founderImageUrl && form.founderImageUrl.trim()) ? (
                   <img
                     src={form.founderImageUrl}
                     alt={form.founderName}
@@ -248,7 +248,7 @@ export const FounderManagementView: React.FC<FounderManagementViewProps> = ({ on
 
               {/* Company Photo Live Preview */}
               <div className="w-full aspect-16/9 rounded-xl overflow-hidden bg-slate-900 flex flex-col items-center justify-center text-white border border-slate-300 shadow-sm relative group">
-                {form.companyImageUrl ? (
+                {Boolean(form.companyImageUrl && form.companyImageUrl.trim()) ? (
                   <img
                     src={form.companyImageUrl}
                     alt="Shivani Graphics Facility"

@@ -193,7 +193,7 @@ export const ProductsGalleryPage: React.FC<ProductsGalleryPageProps> = ({
                   className="group relative bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs cursor-pointer aspect-square flex items-center justify-center"
                 >
                   <img
-                    src={img.url}
+                    src={img.url || 'https://images.unsplash.com/photo-1593062096033-9a26b09da705?auto=format&fit=crop&w=800&q=80'}
                     alt={img.name}
                     loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
@@ -309,7 +309,7 @@ export const ProductsGalleryPage: React.FC<ProductsGalleryPageProps> = ({
       </div>
 
       {/* Lightbox Modal for High-Res Image Preview */}
-      {lightboxImage && (
+      {Boolean(lightboxImage && lightboxImage.trim()) && (
         <div
           onClick={() => setLightboxImage(null)}
           className="fixed inset-0 z-80 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer"
@@ -322,7 +322,7 @@ export const ProductsGalleryPage: React.FC<ProductsGalleryPageProps> = ({
               <X className="w-6 h-6" />
             </button>
             <img
-              src={lightboxImage}
+              src={lightboxImage || undefined}
               alt="High-resolution preview"
               className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl border border-white/20"
             />

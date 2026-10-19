@@ -391,7 +391,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                       <h5 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider">Customer Printed Photos Gallery ({displayReviews.filter(r => r.imageUrl).length})</h5>
                     </div>
                     <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
-                      {displayReviews.filter(r => r.imageUrl).map((rev, idx) => (
+                      {displayReviews.filter(r => Boolean(r.imageUrl && r.imageUrl.trim())).map((rev, idx) => (
                         <div key={idx} className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden border border-slate-200 shrink-0 bg-slate-50 group shadow-2xs">
                           <img src={rev.imageUrl} alt={rev.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                           <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-1.5 text-white text-[10px] truncate font-medium">
@@ -487,7 +487,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                                 </div>
                                 <p className="text-slate-800 font-medium leading-relaxed text-sm sm:text-base italic">"{currentReview.comment}"</p>
 
-                                {currentReview.imageUrl && (
+                                {Boolean(currentReview.imageUrl && currentReview.imageUrl.trim()) && (
                                   <div className="w-full h-44 sm:h-52 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 mt-2">
                                     <img src={currentReview.imageUrl} alt="Customer print upload" className="w-full h-full object-cover" />
                                   </div>
@@ -680,7 +680,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                     }}
                     className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-purple-50 file:text-[#50007c] hover:file:bg-purple-100 cursor-pointer"
                   />
-                  {newReviewImage && (
+                  {Boolean(newReviewImage && newReviewImage.trim()) && (
                     <div className="mt-2 relative w-20 h-20 rounded-xl overflow-hidden border border-slate-200">
                       <img src={newReviewImage} alt="Preview" className="w-full h-full object-cover" />
                       <button

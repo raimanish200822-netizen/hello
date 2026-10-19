@@ -96,6 +96,31 @@
         "category": { "type": "string", "maxLength": 50 }
       },
       "required": ["id", "question", "answer"]
+    },
+    "BroadcastNotification": {
+      "title": "Broadcast Notification Entity",
+      "description": "Push notifications and offers sent by admin to user phones",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "maxLength": 200 },
+        "message": { "type": "string", "maxLength": 1000 },
+        "tag": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "title", "message"]
+    },
+    "NotificationSubscriber": {
+      "title": "Notification Subscriber Entity",
+      "description": "Registered devices with app installed and notifications enabled",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "platform": { "type": "string", "maxLength": 50 },
+        "notificationsEnabled": { "type": "boolean" },
+        "installedApp": { "type": "boolean" }
+      },
+      "required": ["id", "platform"]
     }
   },
   "firestore": {
@@ -130,6 +155,14 @@
     "/faqs/{faqId}": {
       "schema": "Faq",
       "description": "FAQ knowledgebase collection"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "BroadcastNotification",
+      "description": "Phone push notifications and offer broadcasts"
+    },
+    "/notification_subscribers/{subscriberId}": {
+      "schema": "NotificationSubscriber",
+      "description": "Devices registered for push notifications and app downloads"
     }
   }
 }

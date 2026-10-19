@@ -418,8 +418,8 @@ export const PrintoHomeFeed: React.FC<PrintoHomeFeedProps> = ({
           {/* Background Image with Clean Gradient Overlay */}
           <div className="absolute inset-0">
             <img
-              src={activeHero.image}
-              alt={activeHero.title}
+              src={activeHero?.image || 'https://images.unsplash.com/photo-1593062096033-9a26b09da705?auto=format&fit=crop&w=1200&q=80'}
+              alt={activeHero?.title || 'Shivani Graphics'}
               className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-1000"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-slate-950/30 sm:to-transparent" />
@@ -915,7 +915,7 @@ export const PrintoHomeFeed: React.FC<PrintoHomeFeedProps> = ({
                   <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed italic">
                     "{rev.review}"
                   </p>
-                  {rev.photo && (
+                  {Boolean(rev.photo && rev.photo.trim()) && (
                     <div className="rounded-xl overflow-hidden w-20 h-20 border border-slate-200">
                       <img src={rev.photo} alt="Customer print work" className="w-full h-full object-cover" />
                     </div>
@@ -1094,7 +1094,7 @@ export const PrintoHomeFeed: React.FC<PrintoHomeFeedProps> = ({
                     }}
                     className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-purple-50 file:text-[#50007c] hover:file:bg-purple-100 cursor-pointer"
                   />
-                  {newReviewImage && (
+                  {Boolean(newReviewImage && newReviewImage.trim()) && (
                     <div className="mt-2 relative w-20 h-20 rounded-xl overflow-hidden border border-slate-200">
                       <img src={newReviewImage} alt="Preview" className="w-full h-full object-cover" />
                       <button

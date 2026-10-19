@@ -917,7 +917,11 @@ export const MasterAdminPanel: React.FC<MasterAdminPanelProps> = ({ onClose }) =
               <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 {dbCategories.map((cat, idx) => (
                   <div key={cat.id || idx} className="p-4 border border-slate-200 rounded-2xl bg-slate-50 space-y-3">
-                    <img src={cat.image} alt={cat.title} className="w-full h-36 object-cover rounded-xl" />
+                    <img 
+                      src={cat.image && cat.image.trim() ? cat.image.trim() : 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80'} 
+                      alt={cat.title || 'Category'} 
+                      className="w-full h-36 object-cover rounded-xl" 
+                    />
                     <div>
                       <span className="text-[10px] font-black uppercase bg-purple-100 text-[#50007c] px-2 py-0.5 rounded-md">{cat.badge}</span>
                       <h4 className="font-bold text-slate-900 text-sm mt-1">{cat.title}</h4>
@@ -972,7 +976,11 @@ export const MasterAdminPanel: React.FC<MasterAdminPanelProps> = ({ onClose }) =
                   {dbImages.map((img, idx) => (
                     <div key={img.id || idx} className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden group flex flex-col justify-between shadow-2xs">
                       <div className="relative aspect-square bg-slate-200 overflow-hidden">
-                        <img src={img.url} alt={img.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <img 
+                          src={img.url && img.url.trim() ? img.url.trim() : 'https://images.unsplash.com/photo-1593062096033-9a26b09da705?auto=format&fit=crop&w=400&q=80'} 
+                          alt={img.name || 'Asset'} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                        />
                         <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
                           {img.name ? (img.name.length > 15 ? img.name.slice(0, 15) + '...' : img.name) : 'Asset'}
                         </div>
@@ -1049,7 +1057,11 @@ export const MasterAdminPanel: React.FC<MasterAdminPanelProps> = ({ onClose }) =
                 ) : (
                   dbBanners.map((b, idx) => (
                     <div key={b.id || idx} className="p-4 border rounded-2xl space-y-2 bg-slate-50">
-                      <img src={b.image} alt={b.title} className="w-full h-32 object-cover rounded-xl" />
+                      <img 
+                        src={b.image && b.image.trim() ? b.image.trim() : 'https://images.unsplash.com/photo-1593062096033-9a26b09da705?auto=format&fit=crop&w=800&q=80'} 
+                        alt={b.title || 'Banner'} 
+                        className="w-full h-32 object-cover rounded-xl" 
+                      />
                       <h4 className="font-bold text-slate-900 text-sm">{b.title}</h4>
                       <p className="text-xs text-slate-500">{b.subtitle}</p>
                       <div className="pt-2 flex justify-end gap-2">
@@ -1382,7 +1394,11 @@ export const MasterAdminPanel: React.FC<MasterAdminPanelProps> = ({ onClose }) =
             <h3 className="text-base font-black text-slate-900">Associate Image with Homepage Product</h3>
             
             <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl border">
-              <img src={associatingImage.url} alt="Preview" className="w-16 h-16 rounded-xl object-cover" />
+              <img 
+                src={associatingImage.url && associatingImage.url.trim() ? associatingImage.url.trim() : 'https://images.unsplash.com/photo-1593062096033-9a26b09da705?auto=format&fit=crop&w=400&q=80'} 
+                alt="Preview" 
+                className="w-16 h-16 rounded-xl object-cover" 
+              />
               <div className="overflow-hidden">
                 <p className="font-bold text-xs text-slate-900 truncate">{associatingImage.name || 'Selected Image'}</p>
                 <p className="text-[10px] text-slate-500 truncate">{associatingImage.url}</p>
