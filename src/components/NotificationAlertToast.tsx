@@ -4,6 +4,7 @@ import { useAdmin } from '../context/AdminContext';
 import { BroadcastNotification } from '../types';
 import { getSeenNotificationIds, markNotificationAsSeen } from '../services/notificationService';
 import { WHATSAPP_PRIMARY } from '../utils/whatsapp';
+import { speakNewOfferAnnouncement } from '../utils/voiceGreeting';
 
 export const NotificationAlertToast: React.FC = () => {
   const { notifications } = useAdmin();
@@ -19,6 +20,7 @@ export const NotificationAlertToast: React.FC = () => {
       // Delay slightly so the page finishes loading first
       const timer = setTimeout(() => {
         setActiveAlert(unread);
+        speakNewOfferAnnouncement(unread.title);
       }, 1500);
       return () => clearTimeout(timer);
     }

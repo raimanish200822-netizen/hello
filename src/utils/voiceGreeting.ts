@@ -105,3 +105,45 @@ export const initVoiceGreetingInteractionListener = (): (() => void) => {
 
   return removeListeners;
 };
+
+/**
+ * Speaks out loud in Hindi / Indian English when a new promotional offer is received:
+ * "Dhyan dein! Shivani Graphics par naya offer aaya hai!"
+ */
+export const speakNewOfferAnnouncement = (offerTitle?: string): boolean => {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    return false;
+  }
+  if (isVoiceMuted()) {
+    return false;
+  }
+
+  try {
+    window.speechSynthesis.cancel();
+
+    const titleClean = offerTitle ? offerTitle.replace(/[🎉⚡🔥📢✦]/g, '').trim() : '';
+    const textToSpeak = `Dhyan dein! Shivani Graphics par naya offer aaya hai. ${titleClean}`;
+
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.lang = 'hi-IN';
+    utterance.rate = 0.95;
+    utterance.pitch = 1.05;
+    utterance.volume = 1.0;
+
+    const voices = window.speechSynthesis.getVoices();
+    if (voices && voices.length > 0) {
+      const voice = voices.find(v => 
+        v.lang === 'hi-IN' || 
+        v.lang.startsWith('hi') ||
+        v.lang === 'en-IN'
+      );
+      if (voice) utterance.voice = voice;
+    }
+
+    window.speechSynthesis.speak(utterance);
+    return true;
+  } catch (error) {
+    console.warn('Voice announcement error:', error);
+    return false;
+  }
+};

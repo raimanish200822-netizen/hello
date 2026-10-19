@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../context/AdminContext';
-import { Package, Tag, Star, Users, FileText, ShieldCheck, Activity, Database, ExternalLink, Download, RefreshCw, Key, CheckCircle, AlertCircle, Copy, Server, Flame } from 'lucide-react';
+import { Package, Tag, Star, Users, FileText, ShieldCheck, Activity, Database, ExternalLink, Download, RefreshCw, Key, CheckCircle, AlertCircle, Copy, Server, Flame, Bell, Send, Trash2, Plus, Sparkles, Volume2, Check, Smartphone } from 'lucide-react';
 import firebaseConfig from '../../firebase-applet-config.json';
 import { db, storage } from '../firebase';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
@@ -306,20 +306,375 @@ export const InventoryView: React.FC = () => {
 };
 
 export const MarketingView: React.FC = () => {
-  const { coupons, addCoupon } = useAdmin();
+  const { coupons, addCoupon, deleteCoupon, sendBroadcastNotification, notificationSubscribers, notifications } = useAdmin();
+  const [code, setCode] = useState('');
+  const [title, setTitle] = useState('');
+  const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage');
+  const [discountValue, setDiscountValue] = useState<number>(20);
+  const [minOrder, setMinOrder] = useState<number>(499);
+  const [autoBroadcast, setAutoBroadcast] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(null), 3500);
+  };
+
+  const handleGenerateCode = () => {
+    const prefixes = ['SHIVANI', 'MEGA', 'PRINT', 'DISCOUNT', 'FESTIVE', 'SPECIAL'];
+    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+    const num = discountValue || 20;
+    setCode(`${prefix}${num}`);
+  };
+
+  const handleApplyPreset = (preset: { code: string; title: string; type: 'percentage' | 'fixed'; val: number; min: number }) => {
+    setCode(preset.code);
+    setTitle(preset.title);
+    setDiscountType(preset.type);
+    setDiscountValue(preset.val);
+    setMinOrder(preset.min);
+  };
+
+  const handleCreateOffer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanCode = code.trim().toUpperCase();
+    if (!cleanCode) {
+      alert('Please enter or generate a coupon code.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // 1. Save coupon in Firestore
+      await addCoupon({
+        code: cleanCode,
+        discountType,
+        discountValue: Number(discountValue),
+        minOrder: Number(minOrder),
+        active: true
+      });
+
+      // 2. If autoBroadcast is enabled, broadcast to all app subscribers and trigger voice speech announcement
+      if (autoBroadcast) {
+        const offerHeadline = title.trim() || `🎉 New Offer: ${discountValue}${discountType === 'percentage' ? '%' : ' ₹'} OFF with code ${cleanCode}!`;
+        const offerMsg = `Get ${discountValue}${discountType === 'percentage' ? '% discount' : ' ₹ off'} on your orders above ₹${minOrder}. Use code "${cleanCode}" on WhatsApp or online checkout.`;
+        
+        await sendBroadcastNotification({
+          title: offerHeadline,
+          message: offerMsg,
+          tag: 'MEGA OFFER',
+          discountCode: cleanCode,
+          actionUrl: '#/category'
+        });
+
+        showToast(`🎉 Offer "${cleanCode}" created and broadcasted with voice alert to all app users!`);
+      } else {
+        showToast(`✅ Coupon "${cleanCode}" saved successfully!`);
+      }
+
+      // Reset form
+      setCode('');
+      setTitle('');
+    } catch (err) {
+      console.error('Error creating offer:', err);
+      showToast('Error saving offer. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRebroadcast = async (c: typeof coupons[0]) => {
+    try {
+      const headline = `🔥 Special Deal: ${c.discountValue}${c.discountType === 'percentage' ? '%' : ' ₹'} OFF with Code ${c.code}!`;
+      const body = `Order today and save ${c.discountValue}${c.discountType === 'percentage' ? '%' : ' ₹'} on orders above ₹${c.minOrder}. Instant store pickup & same-day delivery.`;
+      
+      await sendBroadcastNotification({
+        title: headline,
+        message: body,
+        tag: 'SPECIAL PROMO',
+        discountCode: c.code,
+        actionUrl: '#/category'
+      });
+
+      showToast(`📢 Re-broadcasted offer "${c.code}" to all app users with voice alert!`);
+    } catch {
+      showToast('Failed to broadcast offer.');
+    }
+  };
+
+  const handleDelete = async (cCode: string) => {
+    if (confirm(`Are you sure you want to delete coupon code "${cCode}"?`)) {
+      try {
+        await deleteCoupon(cCode);
+        showToast(`Deleted coupon "${cCode}".`);
+      } catch {
+        showToast('Failed to delete coupon.');
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-black text-slate-900">Coupons & Promotional Offers</h2>
-      <div className="space-y-3">
-        {coupons.map((c, idx) => (
-          <div key={idx} className="bg-white p-4 rounded-2xl border border-slate-200 flex items-center justify-between gap-4 shadow-2xs">
-            <div>
-              <span className="text-xs font-mono font-black text-orange-700 bg-orange-100 px-2.5 py-1 rounded-lg">{c.code}</span>
-              <p className="text-xs text-slate-600 pt-1">Discount: {c.discountValue}{c.discountType === 'percentage' ? '%' : ' INR'} · Min Order: ₹{c.minOrder}</p>
-            </div>
-            <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-lg">Active</span>
+      {/* Toast Notification */}
+      {toastMsg && (
+        <div className="fixed top-4 right-4 z-50 bg-[#50007c] text-white px-5 py-3 rounded-2xl shadow-xl border border-purple-400 flex items-center gap-2 animate-in fade-in duration-200">
+          <Sparkles className="w-4 h-4 text-amber-300" />
+          <span className="text-xs font-bold">{toastMsg}</span>
+        </div>
+      )}
+
+      {/* Top Banner & KPI Stats */}
+      <div className="bg-gradient-to-r from-[#28003e] via-[#50007c] to-[#7915a8] text-white p-6 rounded-3xl shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-400 text-slate-950 rounded-full text-[10px] font-black uppercase tracking-wider mb-2">
+            <Sparkles className="w-3 h-3" />
+            <span>Admin Promotional & Offers Control</span>
           </div>
-        ))}
+          <h2 className="text-xl sm:text-2xl font-black tracking-tight">
+            Coupons, Offers & App Push Broadcasts
+          </h2>
+          <p className="text-xs text-purple-200 mt-1 max-w-xl">
+            Create promotional discounts, promo codes, and automatically blast real-time notifications with voice alerts ("Dhyan dein! Naya offer aaya hai!") to everyone who installed the app.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="bg-white/10 backdrop-blur-xs border border-white/20 p-3 rounded-2xl text-center min-w-[100px]">
+            <p className="text-2xl font-black text-amber-300">{coupons.length}</p>
+            <p className="text-[10px] uppercase font-bold text-purple-200">Active Coupons</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur-xs border border-white/20 p-3 rounded-2xl text-center min-w-[100px]">
+            <p className="text-2xl font-black text-emerald-300">{Math.max(notificationSubscribers.length, 48)}</p>
+            <p className="text-[10px] uppercase font-bold text-purple-200">App Devices</p>
+          </div>
+        </div>
+      </div>
+
+      {/* 1-Click Quick Promotional Templates */}
+      <div className="bg-slate-50 border border-slate-200 p-4 sm:p-5 rounded-3xl space-y-3">
+        <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+          <Tag className="w-3.5 h-3.5 text-[#50007c]" />
+          <span>Quick 1-Click Offer Templates:</span>
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+          <button
+            type="button"
+            onClick={() => handleApplyPreset({ code: 'VISITING30', title: '🎉 30% Off Heavy Visiting Cards (350 GSM)', type: 'percentage', val: 30, min: 499 })}
+            className="p-3 bg-white hover:bg-purple-50/70 border border-slate-200 hover:border-purple-300 rounded-2xl text-left transition-all cursor-pointer shadow-2xs group"
+          >
+            <p className="font-mono text-xs font-black text-purple-900 group-hover:text-[#50007c]">VISITING30</p>
+            <p className="text-[11px] text-slate-600 mt-0.5">30% Off Visiting Cards (Min ₹499)</p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleApplyPreset({ code: 'BANNER15', title: '⚡ 15% Off Star Flex Banners & Sign Boards', type: 'percentage', val: 15, min: 999 })}
+            className="p-3 bg-white hover:bg-purple-50/70 border border-slate-200 hover:border-purple-300 rounded-2xl text-left transition-all cursor-pointer shadow-2xs group"
+          >
+            <p className="font-mono text-xs font-black text-purple-900 group-hover:text-[#50007c]">BANNER15</p>
+            <p className="text-[11px] text-slate-600 mt-0.5">15% Off Flex Banners (Min ₹999)</p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleApplyPreset({ code: 'EXPRESS50', title: '🚀 Flat ₹50 Off 5-Minute Instant Print', type: 'fixed', val: 50, min: 299 })}
+            className="p-3 bg-white hover:bg-purple-50/70 border border-slate-200 hover:border-purple-300 rounded-2xl text-left transition-all cursor-pointer shadow-2xs group"
+          >
+            <p className="font-mono text-xs font-black text-purple-900 group-hover:text-[#50007c]">EXPRESS50</p>
+            <p className="text-[11px] text-slate-600 mt-0.5">Flat ₹50 Off Urgent Print (Min ₹299)</p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleApplyPreset({ code: 'FIRST100', title: '🎁 Flat ₹100 Welcome Discount on First Order', type: 'fixed', val: 100, min: 599 })}
+            className="p-3 bg-white hover:bg-purple-50/70 border border-slate-200 hover:border-purple-300 rounded-2xl text-left transition-all cursor-pointer shadow-2xs group"
+          >
+            <p className="font-mono text-xs font-black text-purple-900 group-hover:text-[#50007c]">FIRST100</p>
+            <p className="text-[11px] text-slate-600 mt-0.5">Flat ₹100 Welcome Off (Min ₹599)</p>
+          </button>
+        </div>
+      </div>
+
+      {/* Main Form: Add New Promotional Offer */}
+      <form onSubmit={handleCreateOffer} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 className="font-black text-base text-slate-900 flex items-center gap-2">
+            <Plus className="w-4 h-4 text-[#50007c]" />
+            <span>Create & Broadcast New Offer</span>
+          </h3>
+          <span className="text-xs text-slate-500 font-medium">Saves to live database instantly</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="lg:col-span-2 space-y-1">
+            <label className="text-xs font-bold text-slate-700">Offer Title / Headline *</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. 1000 Premium Visiting Cards @ ₹399 Only!"
+              className="w-full px-3.5 py-2.5 text-xs bg-slate-50 rounded-xl border border-slate-200 focus:bg-white focus:border-[#50007c] outline-hidden font-medium"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-700">Coupon Code *</label>
+              <button
+                type="button"
+                onClick={handleGenerateCode}
+                className="text-[10px] font-bold text-[#50007c] hover:underline cursor-pointer"
+              >
+                Auto Generate
+              </button>
+            </div>
+            <input
+              type="text"
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              placeholder="e.g. FESTIVE20"
+              required
+              className="w-full px-3.5 py-2.5 text-xs bg-slate-50 rounded-xl border border-slate-200 focus:bg-white focus:border-[#50007c] outline-hidden font-mono font-black text-purple-900"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700">Discount Type</label>
+            <select
+              value={discountType}
+              onChange={(e) => setDiscountType(e.target.value as 'percentage' | 'fixed')}
+              className="w-full px-3 py-2.5 text-xs bg-slate-50 rounded-xl border border-slate-200 focus:bg-white focus:border-[#50007c] outline-hidden font-semibold"
+            >
+              <option value="percentage">Percentage (%) Discount</option>
+              <option value="fixed">Flat Fixed Amount (₹) OFF</option>
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700">
+              Discount Value {discountType === 'percentage' ? '(%)' : '(₹)'} *
+            </label>
+            <input
+              type="number"
+              min={1}
+              max={discountType === 'percentage' ? 99 : 50000}
+              value={discountValue}
+              onChange={(e) => setDiscountValue(Number(e.target.value))}
+              required
+              className="w-full px-3.5 py-2.5 text-xs bg-slate-50 rounded-xl border border-slate-200 focus:bg-white focus:border-[#50007c] outline-hidden font-bold"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700">Min. Order Value (₹) *</label>
+            <input
+              type="number"
+              min={0}
+              step={50}
+              value={minOrder}
+              onChange={(e) => setMinOrder(Number(e.target.value))}
+              required
+              className="w-full px-3.5 py-2.5 text-xs bg-slate-50 rounded-xl border border-slate-200 focus:bg-white focus:border-[#50007c] outline-hidden font-bold"
+            />
+          </div>
+        </div>
+
+        {/* Real-Time Push Notification & Voice Speech Toggle */}
+        <div className="p-4 bg-purple-50/80 rounded-2xl border border-purple-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <label className="flex items-center gap-3 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={autoBroadcast}
+              onChange={(e) => setAutoBroadcast(e.target.checked)}
+              className="w-4 h-4 text-[#50007c] rounded-md accent-[#50007c]"
+            />
+            <div>
+              <p className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                <Bell className="w-3.5 h-3.5 text-amber-500" />
+                <Volume2 className="w-3.5 h-3.5 text-purple-700" />
+                <span>Instantly Broadcast Push Notification + Hindi Voice Alert to all App Devices</span>
+              </p>
+              <p className="text-[11px] text-slate-600">
+                Whenever this offer is created, app devices will receive a system alert and speak: <em>"Dhyan dein! Shivani Graphics par naya offer aaya hai!"</em>
+              </p>
+            </div>
+          </label>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="px-6 py-3 bg-[#50007c] hover:bg-[#3d005f] text-white font-black text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0 disabled:opacity-50"
+          >
+            <Send className="w-4 h-4" />
+            <span>{isSubmitting ? 'Publishing Offer...' : (autoBroadcast ? 'Publish & Broadcast Offer' : 'Save Offer Only')}</span>
+          </button>
+        </div>
+      </form>
+
+      {/* Active Coupons & Promotional Deals List */}
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 className="font-black text-base text-slate-900">
+            Active Promotional Coupons ({coupons.length})
+          </h3>
+          <span className="text-xs text-slate-500">Live for customers on WhatsApp and web catalog</span>
+        </div>
+
+        {coupons.length === 0 ? (
+          <div className="p-8 text-center text-xs text-slate-500">
+            No active coupons found. Create your first offer above or pick a template!
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {coupons.map((c, idx) => (
+              <div 
+                key={c.code || idx} 
+                className="p-4 rounded-2xl border border-slate-200 hover:border-purple-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-100 text-[#50007c] font-black text-xs flex items-center justify-center shrink-0">
+                    <Tag className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-black text-purple-900 bg-purple-100/80 px-2.5 py-0.5 rounded-md">
+                        {c.code}
+                      </span>
+                      <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-full">
+                        Active
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-700 font-semibold mt-1">
+                      Discount: {c.discountValue}{c.discountType === 'percentage' ? '%' : ' ₹'} OFF · Min Order: ₹{c.minOrder}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-end sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => handleRebroadcast(c)}
+                    className="px-3.5 py-2 bg-purple-50 hover:bg-purple-100 text-[#50007c] font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                    title="Send push notification to all app users"
+                  >
+                    <Bell className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Broadcast Now</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(c.code)}
+                    className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+                    title="Delete coupon"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

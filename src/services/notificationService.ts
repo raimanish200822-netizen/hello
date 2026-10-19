@@ -2,6 +2,7 @@ import { db } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { getOrCreateDeviceId, detectDevicePlatform } from '../hooks/usePWAInstall';
 import { BroadcastNotification } from '../types';
+import { speakNewOfferAnnouncement } from '../utils/voiceGreeting';
 
 const STORAGE_SEEN_NOTIFS = 'shivani_seen_notifications_v1';
 
@@ -104,8 +105,9 @@ export async function triggerNativePhoneNotification(notif: BroadcastNotificatio
     } catch {}
   }
 
-  // Chime sound
+  // Chime sound + Voice Announcement ("Dhyan dein! Shivani Graphics par naya offer aaya hai!")
   playNotificationSound();
+  speakNewOfferAnnouncement(notif.title);
 
   if (Notification.permission !== 'granted') {
     return false;

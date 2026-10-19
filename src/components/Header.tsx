@@ -266,17 +266,15 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             )}
 
-            {/* Download / Install App Button for Desktop & Mobile */}
+            {/* Download / Install App Button - Desktop Mode Only */}
             <button
               type="button"
               onClick={() => setIsInstallModalOpen(true)}
-              className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-950 font-black text-[11px] sm:text-xs rounded-lg sm:rounded-xl shadow-xs transition-all transform hover:scale-105 active:scale-95 cursor-pointer shrink-0"
-              title="Download & Install Shivani Graphics App (Desktop PC, Laptop or Mobile)"
+              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-950 font-black text-xs rounded-xl shadow-xs transition-all transform hover:scale-105 active:scale-95 cursor-pointer shrink-0"
+              title="Download & Install Shivani Graphics App on Desktop PC / Laptop"
             >
               <Download className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span className="hidden md:inline">Download App</span>
-              <span className="hidden sm:inline md:hidden">Install</span>
-              <span className="sm:hidden font-bold">App</span>
+              <span>Download Desktop App</span>
             </button>
 
             {/* Notification Bell with animated unread badge */}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, ShoppingBag, Package, Image, FileText, Users, CreditCard, 
-  PackageOpen, Tag, Star, BarChart2, ShieldCheck, Settings, Activity, LogOut, Menu, X, ExternalLink, Layers, Database, HelpCircle, Building2, Sparkles, User 
+  PackageOpen, Tag, Star, BarChart2, ShieldCheck, Settings, Activity, LogOut, Menu, X, ExternalLink, Layers, Database, HelpCircle, Building2, Sparkles, User, Bell 
 } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
 import { LogoSettingsView } from './LogoSettingsView';
@@ -20,6 +20,7 @@ import { AnalyticsView } from './AnalyticsView';
 import { CustomersView } from './CustomersView';
 import { CrmOrdersView } from './CrmOrdersView';
 import { FounderManagementView } from './FounderManagementView';
+import { NotificationsView } from './NotificationsView';
 
 interface AdminLayoutProps {
   onBackToWebsite: () => void;
@@ -38,7 +39,7 @@ interface NavSection {
 }
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToWebsite, onNavigateFounder }) => {
-  const { currentAdminUser, logout, products, invoices, orders, quotes, siteLogo, isDatabaseConnected, isQuotaExceeded, databaseLatencyMs } = useAdmin();
+  const { currentAdminUser, logout, products, invoices, orders, quotes, siteLogo, isDatabaseConnected, isQuotaExceeded, databaseLatencyMs, notifications } = useAdmin();
   const [historyStack, setHistoryStack] = useState<string[]>(['dashboard']);
   const historyRef = React.useRef(historyStack);
   historyRef.current = historyStack;
@@ -113,10 +114,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToWebsite, onNav
       ]
     },
     {
-      title: 'Marketing & Stock',
+      title: 'Marketing & Offers',
       items: [
+        { id: 'notifications', label: `Push Notifications & Broadcasts (${notifications.length})`, icon: <Bell className="w-4 h-4 text-amber-400" /> },
+        { id: 'marketing', label: 'Coupons & Promotional Deals', icon: <Tag className="w-4 h-4 text-purple-400" /> },
         { id: 'inventory', label: 'Inventory Stock', icon: <PackageOpen className="w-4 h-4" /> },
-        { id: 'marketing', label: 'Coupons & Offers', icon: <Tag className="w-4 h-4" /> },
         { id: 'reviews', label: 'Customer Reviews', icon: <Star className="w-4 h-4" /> },
       ]
     },
@@ -149,6 +151,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onBackToWebsite, onNav
       case 'images': return <BannersImagesView />;
       case 'quotes': return <QuotesView />;
       case 'inventory': return <InventoryView />;
+      case 'notifications': return <NotificationsView />;
       case 'marketing': return <MarketingView />;
       case 'reviews': return <ReviewsView />;
       case 'founder': return <FounderManagementView onPreviewFounderPage={onNavigateFounder || onBackToWebsite} />;

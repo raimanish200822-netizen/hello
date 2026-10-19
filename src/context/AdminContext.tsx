@@ -194,6 +194,7 @@ interface AdminContextType {
   deleteAboutUs: (id: string) => Promise<void>;
   coupons: CouponItem[];
   addCoupon: (coupon: CouponItem) => Promise<void>;
+  deleteCoupon: (code: string) => Promise<void>;
   inventory: InventoryItem[];
   updateInventory: (id: string, qty: number) => Promise<void>;
   reviews: ReviewItem[];
@@ -1411,9 +1412,20 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const addCoupon = async (c: CouponItem) => {
     try {
       await setDoc(doc(db, 'coupons', c.code), c);
+      setCoupons(prev => [c, ...prev.filter(item => item.code !== c.code)]);
       logAction(`Created coupon: ${c.code}`, currentAdminUser?.name || 'Admin');
     } catch (e) {
       handleFirestoreError(e, OperationType.CREATE, `coupons/${c.code}`);
+    }
+  };
+
+  const deleteCoupon = async (code: string) => {
+    try {
+      await deleteDoc(doc(db, 'coupons', code));
+      setCoupons(prev => prev.filter(c => c.code !== code));
+      logAction(`Deleted coupon: ${code}`, currentAdminUser?.name || 'Admin');
+    } catch (e) {
+      handleFirestoreError(e, OperationType.DELETE, `coupons/${code}`);
     }
   };
 
@@ -1558,6 +1570,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       deleteAboutUs,
       coupons,
       addCoupon,
+      deleteCoupon,
       inventory,
       updateInventory,
       reviews,
