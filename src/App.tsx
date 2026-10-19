@@ -166,7 +166,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-slate-900 selection:bg-[#50007c] selection:text-white">
+    <div className="min-h-screen flex flex-col bg-white text-slate-900 selection:bg-[#50007c] selection:text-white w-full max-w-full overflow-x-hidden">
       
       {/* 1. Top Purple Announcement Bar */}
       <TopBanner />

@@ -106,33 +106,33 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-xs transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6">
         
         {/* Main Bar */}
-        <div className="flex items-center justify-between h-14 sm:h-16 gap-3">
+        <div className="flex items-center justify-between h-14 sm:h-16 gap-2 sm:gap-3">
           
           {/* Left: Hamburger Menu + Shivani Graphics Brand Logo */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
             <button
               onClick={onOpenMobileMenu}
               type="button"
-              className="p-2 -ml-1.5 text-slate-800 hover:text-[#50007c] hover:bg-purple-50 rounded-xl transition-colors cursor-pointer"
+              className="p-1.5 sm:p-2 -ml-1 text-slate-800 hover:text-[#50007c] hover:bg-purple-50 rounded-xl transition-colors cursor-pointer shrink-0"
               aria-label="Open Navigation Menu"
             >
-              <Menu className="w-6 h-6 stroke-[2.2]" />
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
             </button>
 
             <button 
               type="button"
               onClick={onNavigateHome}
-              className="flex items-center gap-2.5 sm:gap-3 group cursor-pointer text-left"
+              className="flex items-center gap-2 sm:gap-2.5 group cursor-pointer text-left min-w-0"
             >
-              <div className="relative">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white flex items-center justify-center p-1 shadow-md group-hover:scale-105 transition-transform overflow-hidden border-2 border-purple-200">
+              <div className="relative shrink-0">
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-white flex items-center justify-center p-0.5 sm:p-1 shadow-xs group-hover:scale-105 transition-transform overflow-hidden border border-purple-200">
                   <img 
                     src={siteLogo && siteLogo.trim() && !siteLogo.includes('sanishtech.com') ? siteLogo.trim() : '/official_logo.jpg'} 
                     alt="Shivani Graphics Logo" 
-                    className="w-full h-full object-cover rounded-xl"
+                    className="w-full h-full object-cover rounded-lg sm:rounded-xl"
                     onError={(e) => {
                       const target = e.currentTarget as HTMLImageElement;
                       if (!target.src.endsWith('/official_logo.jpg')) {
@@ -142,12 +142,12 @@ export const Header: React.FC<HeaderProps> = ({
                   />
                 </div>
               </div>
-              <div className="flex flex-col">
-                <div className="flex items-center font-sans font-black text-xl sm:text-2xl tracking-tight leading-none">
+              <div className="flex flex-col min-w-0">
+                <div className="flex items-center font-sans font-black text-base sm:text-2xl tracking-tight leading-none whitespace-nowrap">
                   <span className="text-[#50007c]">Shivani</span>
                   <span className="text-orange-500 ml-1">Graphics</span>
                 </div>
-                <span className="text-[9px] sm:text-[10px] text-[#50007c] font-black tracking-tight mt-0.5 group-hover:text-orange-600 transition-colors">
+                <span className="hidden xs:inline-block text-[8px] sm:text-[10px] text-[#50007c] font-black tracking-tight mt-0.5 group-hover:text-orange-600 transition-colors whitespace-nowrap">
                   Custom Printing Studio
                 </span>
               </div>
@@ -266,34 +266,35 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             )}
 
-            {/* Download / Install App Button */}
+            {/* Download / Install App Button for Desktop & Mobile */}
             <button
               type="button"
               onClick={() => setIsInstallModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-950 font-black text-xs rounded-xl shadow-xs transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
-              title="Install Shivani Graphics App on Phone"
+              className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-950 font-black text-[11px] sm:text-xs rounded-lg sm:rounded-xl shadow-xs transition-all transform hover:scale-105 active:scale-95 cursor-pointer shrink-0"
+              title="Download & Install Shivani Graphics App (Desktop PC, Laptop or Mobile)"
             >
               <Download className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span className="hidden sm:inline">Download App</span>
-              <span className="sm:hidden">App</span>
+              <span className="hidden md:inline">Download App</span>
+              <span className="hidden sm:inline md:hidden">Install</span>
+              <span className="sm:hidden font-bold">App</span>
             </button>
 
             {/* Notification Bell with animated unread badge */}
             <button
               type="button"
               onClick={() => setIsNotificationModalOpen(true)}
-              className="relative p-2 text-slate-700 hover:text-[#50007c] hover:bg-purple-50 rounded-xl transition-colors cursor-pointer"
+              className="relative p-1.5 sm:p-2 text-slate-700 hover:text-[#50007c] hover:bg-purple-50 rounded-lg sm:rounded-xl transition-colors cursor-pointer shrink-0"
               aria-label={`Offers & Announcements (${unreadCount} unread)`}
               title="Offers & Announcements"
             >
-              <Bell className="w-5 h-5 stroke-[2.2]" />
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
               {unreadCount > 0 ? (
-                <span className="absolute top-1 right-1 bg-amber-500 text-slate-950 font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center animate-bounce shadow-xs">
+                <span className="absolute top-0.5 right-0.5 bg-amber-500 text-slate-950 font-black text-[9px] w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center animate-bounce shadow-xs">
                   {unreadCount}
                 </span>
               ) : (
                 notifications.length > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-purple-600 rounded-full" />
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-purple-600 rounded-full" />
                 )
               )}
             </button>
@@ -302,25 +303,25 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => setIsSearchOpen(prev => !prev)}
-              className="lg:hidden p-2 text-slate-700 hover:text-[#50007c] hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+              className="lg:hidden p-1.5 sm:p-2 text-slate-700 hover:text-[#50007c] hover:bg-slate-100 rounded-lg sm:rounded-xl transition-colors cursor-pointer shrink-0"
               aria-label="Search Catalog"
             >
-              <Search className="w-5 h-5 stroke-[2.2]" />
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
             </button>
 
             {/* Shopping Cart Icon with Purple/Indigo Badge */}
             <button
               type="button"
               onClick={onOpenCartModal}
-              className="relative p-2 text-slate-700 hover:text-[#50007c] hover:bg-slate-100 rounded-xl transition-colors flex items-center cursor-pointer"
+              className="relative p-1.5 sm:p-2 text-slate-700 hover:text-[#50007c] hover:bg-slate-100 rounded-lg sm:rounded-xl transition-colors flex items-center cursor-pointer shrink-0"
               aria-label={`View Cart (${cartCount} items)`}
             >
-              <ShoppingBag className="w-5 h-5 stroke-[2.2]" />
+              <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
               {cartCount > 0 && (
                 <motion.span 
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="absolute top-1 right-1 bg-[#50007c] text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs"
+                  className="absolute top-0.5 right-0.5 bg-[#50007c] text-white text-[9px] sm:text-[10px] font-black w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center shadow-xs"
                 >
                   {cartCount}
                 </motion.span>

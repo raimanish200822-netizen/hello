@@ -197,7 +197,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                   </div>
                   <div>
                     <p className="font-black text-xs text-slate-900 leading-tight">Shivani Graphics App</p>
-                    <p className="text-[10px] text-purple-700 font-medium">Get instant phone offers & alerts</p>
+                    <p className="text-[10px] text-purple-700 font-medium">Desktop PC, Laptop & Mobile App</p>
                   </div>
                 </div>
                 <button
@@ -206,7 +206,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                   className="w-full py-2 px-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-98 text-white font-black text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Install App (डाउनलोड ऐप)</span>
+                  <span>Download / Install App (ऐप डाउनलोड)</span>
                 </button>
               </div>
 

@@ -32,7 +32,12 @@ export function detectDevicePlatform(): 'android' | 'ios' | 'desktop' {
 }
 
 export function usePWAInstall() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(() => {
+    if (typeof window !== 'undefined' && (window as unknown as { __deferredPWAInstallPrompt?: BeforeInstallPromptEvent }).__deferredPWAInstallPrompt) {
+      return (window as unknown as { __deferredPWAInstallPrompt: BeforeInstallPromptEvent }).__deferredPWAInstallPrompt;
+    }
+    return null;
+  });
   const [isInstalled, setIsInstalled] = useState<boolean>(() => {
     try {
       if (typeof window === 'undefined') return false;
@@ -46,6 +51,7 @@ export function usePWAInstall() {
     }
   });
   const [isIOS, setIsIOS] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   // Sync install state to Firestore device registry
   const registerDeviceState = useCallback(async (installed: boolean) => {
@@ -85,13 +91,21 @@ export function usePWAInstall() {
 
     checkStandalone();
 
-    // Detect iOS
+    // Detect platform
     const platform = detectDevicePlatform();
     setIsIOS(platform === 'ios');
+    setIsDesktop(platform === 'desktop');
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
+      (window as unknown as { __deferredPWAInstallPrompt?: BeforeInstallPromptEvent }).__deferredPWAInstallPrompt = e as BeforeInstallPromptEvent;
       setDeferredPrompt(e as BeforeInstallPromptEvent);
+    };
+
+    const handlePromptAvailable = () => {
+      if ((window as unknown as { __deferredPWAInstallPrompt?: BeforeInstallPromptEvent }).__deferredPWAInstallPrompt) {
+        setDeferredPrompt((window as unknown as { __deferredPWAInstallPrompt: BeforeInstallPromptEvent }).__deferredPWAInstallPrompt);
+      }
     };
 
     const handleAppInstalled = () => {
@@ -104,6 +118,7 @@ export function usePWAInstall() {
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('pwa-prompt-available', handlePromptAvailable);
     window.addEventListener('appinstalled', handleAppInstalled);
 
     // Initial heart beat
@@ -111,15 +126,17 @@ export function usePWAInstall() {
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('pwa-prompt-available', handlePromptAvailable);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, [registerDeviceState, isInstalled]);
 
   const install = async (): Promise<boolean> => {
-    if (!deferredPrompt) return false;
+    const promptEvent = deferredPrompt || (typeof window !== 'undefined' ? (window as unknown as { __deferredPWAInstallPrompt?: BeforeInstallPromptEvent }).__deferredPWAInstallPrompt : null);
+    if (!promptEvent) return false;
     try {
-      await deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
+      await promptEvent.prompt();
+      const { outcome } = await promptEvent.userChoice;
       if (outcome === 'accepted') {
         setIsInstalled(true);
         setDeferredPrompt(null);
@@ -136,9 +153,10 @@ export function usePWAInstall() {
   };
 
   return {
-    isInstallable: !!deferredPrompt,
+    isInstallable: !!deferredPrompt || (typeof window !== 'undefined' && !!(window as unknown as { __deferredPWAInstallPrompt?: BeforeInstallPromptEvent }).__deferredPWAInstallPrompt),
     isInstalled,
     isIOS,
+    isDesktop,
     install,
     platform: detectDevicePlatform(),
   };

@@ -31,6 +31,15 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="ShivaniPrint" />
 
+    <!-- Early PWA Install Prompt Capture for Desktop (Chrome/Edge) & Mobile -->
+    <script>
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.__deferredPWAInstallPrompt = e;
+        window.dispatchEvent(new CustomEvent('pwa-prompt-available'));
+      });
+    </script>
+
     <!-- Browser Favicons & App Icons -->
     <link rel="icon" type="image/jpeg" href="/official_logo.jpg" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
