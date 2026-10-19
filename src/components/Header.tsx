@@ -22,7 +22,7 @@ import {
   Smartphone
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ProductItem } from '../types';
+import { ProductItem, BroadcastNotification } from '../types';
 import { CATEGORIES } from '../data/products';
 import { useAdmin } from '../context/AdminContext';
 import { getCacheBustedImageUrl } from '../utils/imageUtils';
@@ -70,7 +70,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
 
   const seenIds = new Set(getSeenNotificationIds());
-  const unreadCount = notifications.filter(n => !seenIds.has(n.id)).length;
+  const unreadCount = notifications.filter((n: BroadcastNotification) => !seenIds.has(n.id)).length;
 
   const filtered = searchQuery.trim()
     ? products.filter(p => 

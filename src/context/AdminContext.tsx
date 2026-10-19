@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { PRODUCTS, CATEGORIES } from '../data/products';
-import { ProductItem, FaqItem, AboutUsItem } from '../types';
+import { ProductItem, FaqItem, AboutUsItem, BroadcastNotification, NotificationSubscriber } from '../types';
 import { FAQS } from '../data/faqs';
 import { db, handleFirestoreError, OperationType, testConnection } from '../firebase';
 import { collection, doc, onSnapshot, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { cacheBustProduct, appendCacheBuster, getCacheBustedImageUrl } from '../utils/imageUtils';
+import { triggerNativePhoneNotification } from '../services/notificationService';
 
 export interface AdminUser {
   email: string;
@@ -221,6 +222,10 @@ interface AdminContextType {
   databaseLatencyMs: number;
   testDatabaseConnection: () => Promise<{ success: boolean; latencyMs: number; error?: string; isQuotaExceeded?: boolean }>;
   getCacheBustedImageUrl: (url?: string, versionOrTimestamp?: number | string, fallback?: string) => string;
+  notifications: BroadcastNotification[];
+  notificationSubscribers: NotificationSubscriber[];
+  sendBroadcastNotification: (notif: Omit<BroadcastNotification, 'id' | 'createdAt'>) => Promise<string>;
+  deleteBroadcastNotification: (id: string) => Promise<void>;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -322,6 +327,17 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch {}
     return [];
   });
+
+  const CACHE_KEY_NOTIFS = 'shivani_cached_notifications_v1';
+  const [notifications, setNotifications] = useState<BroadcastNotification[]>(() => {
+    try {
+      const saved = localStorage.getItem(CACHE_KEY_NOTIFS);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [notificationSubscribers, setNotificationSubscribers] = useState<NotificationSubscriber[]>([]);
 
   const [siteLogo, setSiteLogo] = useState<string>(() => {
     try {
@@ -795,6 +811,32 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       handleFirestoreError(error, OperationType.GET, 'settings/branding');
     });
 
+    // 14. Broadcast Notifications Listener
+    const unsubNotifications = onSnapshot(collection(db, 'notifications'), (snap) => {
+      const list: BroadcastNotification[] = [];
+      snap.forEach(d => {
+        list.push({ id: d.id, ...d.data() } as BroadcastNotification);
+      });
+      list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      setNotifications(list);
+      try {
+        localStorage.setItem(CACHE_KEY_NOTIFS, JSON.stringify(list));
+      } catch {}
+    }, (error) => {
+      handleFirestoreError(error, OperationType.GET, 'notifications');
+    });
+
+    // 15. Notification Subscribers Listener
+    const unsubSubscribers = onSnapshot(collection(db, 'notification_subscribers'), (snap) => {
+      const list: NotificationSubscriber[] = [];
+      snap.forEach(d => {
+        list.push({ id: d.id, ...d.data() } as NotificationSubscriber);
+      });
+      setNotificationSubscribers(list);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.GET, 'notification_subscribers');
+    });
+
     return () => {
       unsubProducts();
       unsubDeleted();
@@ -811,6 +853,8 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       unsubAboutUs();
       unsubVisitors();
       unsubLogo();
+      unsubNotifications();
+      unsubSubscribers();
     };
   }, []);
 
@@ -929,6 +973,38 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const deleteSiteLogo = resetBrandingToDefault;
+
+  const sendBroadcastNotification = async (notifData: Omit<BroadcastNotification, 'id' | 'createdAt'>): Promise<string> => {
+    const id = `notif_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const newNotif: BroadcastNotification = {
+      ...notifData,
+      id,
+      createdAt: Date.now(),
+      sentBy: currentAdminUser?.name || 'Shivani Admin',
+      recipientCount: notificationSubscribers.length
+    };
+    try {
+      await setDoc(doc(db, 'notifications', id), newNotif);
+      setNotifications(prev => [newNotif, ...prev.filter(n => n.id !== id)]);
+      logAction(`Sent broadcast notification: "${newNotif.title}"`, currentAdminUser?.name || 'Admin');
+      triggerNativePhoneNotification(newNotif);
+      return id;
+    } catch (e) {
+      handleFirestoreError(e, OperationType.WRITE, 'notifications');
+      throw e;
+    }
+  };
+
+  const deleteBroadcastNotification = async (id: string): Promise<void> => {
+    try {
+      await deleteDoc(doc(db, 'notifications', id));
+      setNotifications(prev => prev.filter(n => n.id !== id));
+      logAction(`Deleted broadcast notification #${id}`, currentAdminUser?.name || 'Admin');
+    } catch (e) {
+      handleFirestoreError(e, OperationType.DELETE, `notifications/${id}`);
+      throw e;
+    }
+  };
 
   const login = (user: AdminUser) => {
     setIsAdminLoggedIn(true);
@@ -1509,7 +1585,11 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       databaseError,
       databaseLatencyMs,
       testDatabaseConnection,
-      getCacheBustedImageUrl
+      getCacheBustedImageUrl,
+      notifications,
+      notificationSubscribers,
+      sendBroadcastNotification,
+      deleteBroadcastNotification
     }}>
       {children}
     </AdminContext.Provider>

@@ -13,7 +13,7 @@ export const NotificationAlertToast: React.FC = () => {
     if (!notifications || notifications.length === 0) return;
 
     const seenIds = new Set(getSeenNotificationIds());
-    const unread = notifications.find(n => !seenIds.has(n.id));
+    const unread = notifications.find((n: BroadcastNotification) => !seenIds.has(n.id));
 
     if (unread) {
       // Delay slightly so the page finishes loading first

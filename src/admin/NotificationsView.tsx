@@ -19,7 +19,7 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
-import { BroadcastNotification } from '../types';
+import { BroadcastNotification, NotificationSubscriber } from '../types';
 import { DeleteConfirmModal, DeleteModalItem } from './DeleteConfirmModal';
 import { ImageUploader } from './ImageUploader';
 
@@ -81,9 +81,9 @@ export const NotificationsView: React.FC = () => {
 
   // Stats calculation
   const totalSubscribers = Math.max(notificationSubscribers.length, 48); // realistic baseline + dynamic
-  const activePushEnabled = notificationSubscribers.filter(s => s.notificationsEnabled).length || Math.floor(totalSubscribers * 0.85);
-  const androidCount = notificationSubscribers.filter(s => s.platform === 'android').length || Math.floor(totalSubscribers * 0.7);
-  const iosCount = notificationSubscribers.filter(s => s.platform === 'ios').length || Math.floor(totalSubscribers * 0.2);
+  const activePushEnabled = notificationSubscribers.filter((s: NotificationSubscriber) => s.notificationsEnabled).length || Math.floor(totalSubscribers * 0.85);
+  const androidCount = notificationSubscribers.filter((s: NotificationSubscriber) => s.platform === 'android').length || Math.floor(totalSubscribers * 0.7);
+  const iosCount = notificationSubscribers.filter((s: NotificationSubscriber) => s.platform === 'ios').length || Math.floor(totalSubscribers * 0.2);
 
   const applyTemplate = (tmpl: typeof PRESET_TEMPLATES[0]) => {
     setTitle(tmpl.title);
@@ -473,7 +473,7 @@ export const NotificationsView: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {notifications.map((notif) => (
+                {notifications.map((notif: BroadcastNotification) => (
                   <tr key={notif.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-3.5 pr-4 max-w-xs">
                       <p className="font-bold text-slate-900 truncate">{notif.title}</p>
