@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, Sparkles, X, Tag, ExternalLink, Smartphone, Check, Clock, Volume2 } from 'lucide-react';
+import { Bell, Sparkles, X, Tag, ExternalLink, Smartphone, Check, Clock } from 'lucide-react';
 import { BroadcastNotification } from '../types';
 import { requestNotificationPermission, markNotificationAsSeen } from '../services/notificationService';
 import { WHATSAPP_PRIMARY } from '../utils/whatsapp';
@@ -20,6 +20,7 @@ export const NotificationBellModal: React.FC<NotificationBellModalProps> = ({
   const [permissionGranted, setPermissionGranted] = useState(() => {
     return typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted';
   });
+  const [permissionSuccessMessage, setPermissionSuccessMessage] = useState(false);
 
   if (!isOpen) return null;
 
@@ -27,7 +28,8 @@ export const NotificationBellModal: React.FC<NotificationBellModalProps> = ({
     const granted = await requestNotificationPermission();
     setPermissionGranted(granted);
     if (granted) {
-      alert('🎉 Phone Notifications Enabled! You will now receive instant offers directly on your phone lock screen.');
+      setPermissionSuccessMessage(true);
+      setTimeout(() => setPermissionSuccessMessage(false), 4000);
     }
   };
 
@@ -96,6 +98,13 @@ export const NotificationBellModal: React.FC<NotificationBellModalProps> = ({
             >
               Enable Alerts
             </button>
+          </div>
+        )}
+
+        {permissionSuccessMessage && (
+          <div className="p-3 bg-emerald-50 border-b border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+            <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>Notifications enabled! You'll receive official deals directly on your device.</span>
           </div>
         )}
 

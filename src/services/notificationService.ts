@@ -2,7 +2,6 @@ import { db } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { getOrCreateDeviceId, detectDevicePlatform } from '../hooks/usePWAInstall';
 import { BroadcastNotification } from '../types';
-import { speakNewOfferAnnouncement } from '../utils/voiceGreeting';
 
 const STORAGE_SEEN_NOTIFS = 'shivani_seen_notifications_v1';
 
@@ -55,42 +54,6 @@ export async function requestNotificationPermission(): Promise<boolean> {
 }
 
 /**
- * Play a gentle notification sound using Web Audio API (no external file dependency).
- */
-export function playNotificationSound(): void {
-  try {
-    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    if (!AudioContextClass) return;
-
-    const ctx = new AudioContextClass();
-    const now = ctx.currentTime;
-
-    // Pleasant double-chime (D5 -> G5)
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-    osc1.type = 'sine';
-    osc1.frequency.setValueAtTime(587.33, now); // D5
-    gain1.gain.setValueAtTime(0.2, now);
-    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-    osc1.connect(gain1);
-    gain1.connect(ctx.destination);
-    osc1.start(now);
-    osc1.stop(now + 0.35);
-
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(783.99, now + 0.12); // G5
-    gain2.gain.setValueAtTime(0.25, now + 0.12);
-    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
-    osc2.connect(gain2);
-    gain2.connect(ctx.destination);
-    osc2.start(now + 0.12);
-    osc2.stop(now + 0.55);
-  } catch {}
-}
-
-/**
  * Triggers a native system notification on the user's phone or desktop.
  */
 export async function triggerNativePhoneNotification(notif: BroadcastNotification): Promise<boolean> {
@@ -98,16 +61,12 @@ export async function triggerNativePhoneNotification(notif: BroadcastNotificatio
     return false;
   }
 
-  // Device vibration for phones
+  // Device vibration for phones (silent tactile feedback)
   if ('vibrate' in navigator) {
     try {
-      navigator.vibrate([200, 100, 200, 100, 250]);
+      navigator.vibrate([150, 80, 150]);
     } catch {}
   }
-
-  // Chime sound + Voice Announcement ("Dhyan dein! Shivani Graphics par naya offer aaya hai!")
-  playNotificationSound();
-  speakNewOfferAnnouncement(notif.title);
 
   if (Notification.permission !== 'granted') {
     return false;

@@ -45,6 +45,7 @@ interface HeaderProps {
   onNavigateAbout: () => void;
   onNavigateFounder?: () => void;
   onOpenCompare?: () => void;
+  onNavigateDownloadApp?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -61,7 +62,8 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigateTrack,
   onNavigateAbout,
   onNavigateFounder,
-  onOpenCompare
+  onOpenCompare,
+  onNavigateDownloadApp
 }) => {
   const { siteLogo, notifications, notificationSubscribers } = useAdmin();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -109,14 +111,14 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
         
         {/* Main Bar */}
-        <div className="flex items-center justify-between h-14 sm:h-16 gap-2 sm:gap-3">
+        <div className="flex items-center justify-between h-14 sm:h-16 gap-2 sm:gap-4">
           
-          {/* Left: Hamburger Menu + Shivani Graphics Brand Logo */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
+          {/* Left: Hamburger Menu (Mobile Only) + Shivani Graphics Brand Logo */}
+          <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
             <button
               onClick={onOpenMobileMenu}
               type="button"
-              className="p-1.5 sm:p-2 -ml-1 text-slate-800 hover:text-[#50007c] hover:bg-purple-50 rounded-xl transition-colors cursor-pointer shrink-0"
+              className="lg:hidden p-1.5 sm:p-2 -ml-1 text-slate-800 hover:text-[#50007c] hover:bg-purple-50 rounded-xl transition-colors cursor-pointer shrink-0"
               aria-label="Open Navigation Menu"
             >
               <Menu className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
@@ -125,14 +127,14 @@ export const Header: React.FC<HeaderProps> = ({
             <button 
               type="button"
               onClick={onNavigateHome}
-              className="flex items-center gap-2 sm:gap-2.5 group cursor-pointer text-left min-w-0"
+              className="flex items-center gap-2.5 sm:gap-3 group cursor-pointer text-left min-w-0 py-1"
             >
               <div className="relative shrink-0">
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-white flex items-center justify-center p-0.5 sm:p-1 shadow-xs group-hover:scale-105 transition-transform overflow-hidden border border-purple-200">
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-white flex items-center justify-center p-0.5 sm:p-1 shadow-xs group-hover:scale-105 transition-transform overflow-hidden border border-purple-200">
                   <img 
                     src={siteLogo && siteLogo.trim() && !siteLogo.includes('sanishtech.com') ? siteLogo.trim() : '/official_logo.jpg'} 
                     alt="Shivani Graphics Logo" 
-                    className="w-full h-full object-cover rounded-lg sm:rounded-xl"
+                    className="w-full h-full object-cover rounded-lg"
                     onError={(e) => {
                       const target = e.currentTarget as HTMLImageElement;
                       if (!target.src.endsWith('/official_logo.jpg')) {
@@ -142,12 +144,12 @@ export const Header: React.FC<HeaderProps> = ({
                   />
                 </div>
               </div>
-              <div className="flex flex-col min-w-0">
+              <div className="flex flex-col min-w-0 justify-center">
                 <div className="flex items-center font-sans font-black text-base sm:text-2xl tracking-tight leading-none whitespace-nowrap">
                   <span className="text-[#50007c]">Shivani</span>
                   <span className="text-orange-500 ml-1">Graphics</span>
                 </div>
-                <span className="hidden xs:inline-block text-[8px] sm:text-[10px] text-[#50007c] font-black tracking-tight mt-0.5 group-hover:text-orange-600 transition-colors whitespace-nowrap">
+                <span className="hidden xs:inline-block text-[8px] sm:text-[10px] text-[#50007c] font-black tracking-tight mt-1 group-hover:text-orange-600 transition-colors whitespace-nowrap">
                   Custom Printing Studio
                 </span>
               </div>
@@ -155,21 +157,21 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Center: Search Bar on Desktop */}
-          <div className="hidden lg:flex flex-1 max-w-md mx-6 relative">
+          <div className="hidden lg:flex flex-1 max-w-sm xl:max-w-md mx-3 xl:mx-6 relative">
             <div className="relative w-full">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search Visiting Cards, Standees, T-Shirts, Stamps..."
-                className="w-full pl-9 pr-8 py-2 text-xs bg-slate-100/80 hover:bg-slate-100 rounded-full border border-slate-200/80 focus:border-[#50007c] focus:bg-white text-slate-900 outline-hidden transition-all shadow-2xs"
+                className="w-full h-9 sm:h-10 pl-9 pr-8 py-2 text-xs bg-slate-100/90 hover:bg-slate-100 rounded-xl border border-slate-200/90 focus:border-[#50007c] focus:bg-white text-slate-900 outline-hidden transition-all shadow-2xs"
               />
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -213,86 +215,89 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
-          {/* Right: Quick Links, Search & Cart Icons */}
-          <div className="flex items-center gap-1.5 sm:gap-3">
+          {/* Right: Quick Links, Search & Cart Icons (Clean Horizontal Baseline Alignment) */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5">
             
+            {/* Track Order - Prominent and Aligned with Logo Baseline */}
             <button
               type="button"
               onClick={onNavigateTrack}
-              className="hidden md:inline-flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-[#50007c] px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+              className="hidden md:inline-flex items-center gap-2 h-9 sm:h-10 px-3 py-1.5 rounded-xl border border-slate-200/90 hover:border-purple-300 hover:bg-purple-50/70 text-xs font-bold text-slate-700 hover:text-[#50007c] transition-all cursor-pointer shrink-0 shadow-2xs group"
+              title="Track Order Status"
             >
-              <Truck className="w-3.5 h-3.5 text-orange-500" />
-              <span>Track Order</span>
+              <div className="w-5 h-5 rounded-md bg-orange-100 flex items-center justify-center shrink-0 group-hover:bg-orange-200 transition-colors">
+                <Truck className="w-3.5 h-3.5 text-orange-600" />
+              </div>
+              <span className="whitespace-nowrap font-bold">Track Order</span>
             </button>
 
             <button
               type="button"
               onClick={onOpenStoreModal}
-              className="hidden md:inline-flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-[#50007c] px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+              className="hidden md:inline-flex items-center gap-1.5 h-9 sm:h-10 px-2.5 py-1.5 rounded-xl hover:bg-slate-100 text-xs font-bold text-slate-700 hover:text-[#50007c] transition-colors cursor-pointer shrink-0"
+              title="Mahavir Enclave Store Location"
             >
               <MapPin className="w-3.5 h-3.5 text-purple-600" />
-              <span>Store Location</span>
+              <span className="whitespace-nowrap">Store</span>
             </button>
 
             <button
               type="button"
               onClick={onNavigateAbout}
-              className="hidden sm:inline-block text-xs font-bold text-slate-700 hover:text-[#50007c] px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+              className="hidden lg:inline-flex items-center h-9 sm:h-10 px-2.5 py-1.5 rounded-xl hover:bg-slate-100 text-xs font-bold text-slate-700 hover:text-[#50007c] transition-colors cursor-pointer shrink-0 whitespace-nowrap"
             >
-              About Us
+              About
             </button>
 
             {onNavigateFounder && (
               <button
                 type="button"
                 onClick={onNavigateFounder}
-                className="hidden md:inline-flex items-center gap-1 text-xs font-bold text-purple-800 bg-purple-50 hover:bg-purple-100 border border-purple-200/60 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                className="hidden xl:inline-flex items-center gap-1 h-9 sm:h-10 text-xs font-bold text-purple-800 bg-purple-50 hover:bg-purple-100 border border-purple-200/60 px-2.5 py-1.5 rounded-xl transition-colors cursor-pointer shrink-0 whitespace-nowrap"
                 title="Meet Our Founder"
               >
-                <span>Meet Our Founder</span>
+                <span>Founder</span>
               </button>
             )}
-
-
 
             {onOpenCompare && (
               <button
                 type="button"
                 onClick={onOpenCompare}
-                className="hidden sm:inline-flex items-center gap-1 text-xs font-black text-orange-700 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition-colors border border-orange-200 cursor-pointer"
+                className="hidden xl:inline-flex items-center gap-1 h-9 sm:h-10 text-xs font-black text-orange-700 bg-orange-50 hover:bg-orange-100 px-2.5 py-1.5 rounded-xl transition-colors border border-orange-200 cursor-pointer shrink-0 whitespace-nowrap"
                 title="Compare Products Side-by-Side"
               >
                 <span>⚖️ Compare</span>
               </button>
             )}
 
-            {/* Download / Install App Button - Desktop Mode Only */}
+            {/* Download App Button - Navigates to Dedicated App Download Page */}
             <button
               type="button"
-              onClick={() => setIsInstallModalOpen(true)}
-              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-950 font-black text-xs rounded-xl shadow-xs transition-all transform hover:scale-105 active:scale-95 cursor-pointer shrink-0"
+              onClick={onNavigateDownloadApp ? onNavigateDownloadApp : () => setIsInstallModalOpen(true)}
+              className="hidden md:inline-flex items-center gap-1.5 h-9 sm:h-10 px-3.5 py-1.5 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 hover:from-amber-500 hover:to-orange-600 active:scale-95 text-slate-950 font-black text-xs rounded-xl shadow-xs transition-all cursor-pointer shrink-0 whitespace-nowrap"
               title="Download & Install Shivani Graphics App on Desktop PC / Laptop"
             >
               <Download className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>Download Desktop App</span>
+              <span>Download App</span>
             </button>
 
             {/* Notification Bell with animated unread badge */}
             <button
               type="button"
               onClick={() => setIsNotificationModalOpen(true)}
-              className="relative p-1.5 sm:p-2 text-slate-700 hover:text-[#50007c] hover:bg-purple-50 rounded-lg sm:rounded-xl transition-colors cursor-pointer shrink-0"
+              className="relative h-9 sm:h-10 w-9 sm:w-10 flex items-center justify-center text-slate-700 hover:text-[#50007c] hover:bg-purple-50 rounded-xl transition-colors cursor-pointer shrink-0"
               aria-label={`Offers & Announcements (${unreadCount} unread)`}
               title="Offers & Announcements"
             >
               <Bell className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
               {unreadCount > 0 ? (
-                <span className="absolute top-0.5 right-0.5 bg-amber-500 text-slate-950 font-black text-[9px] w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center animate-bounce shadow-xs">
+                <span className="absolute top-1 right-1 bg-amber-500 text-slate-950 font-black text-[9px] w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center animate-bounce shadow-xs">
                   {unreadCount}
                 </span>
               ) : (
                 notifications.length > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-purple-600 rounded-full" />
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-purple-600 rounded-full" />
                 )
               )}
             </button>
@@ -301,7 +306,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => setIsSearchOpen(prev => !prev)}
-              className="lg:hidden p-1.5 sm:p-2 text-slate-700 hover:text-[#50007c] hover:bg-slate-100 rounded-lg sm:rounded-xl transition-colors cursor-pointer shrink-0"
+              className="lg:hidden h-9 sm:h-10 w-9 sm:w-10 flex items-center justify-center text-slate-700 hover:text-[#50007c] hover:bg-slate-100 rounded-xl transition-colors cursor-pointer shrink-0"
               aria-label="Search Catalog"
             >
               <Search className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
@@ -311,8 +316,9 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={onOpenCartModal}
-              className="relative p-1.5 sm:p-2 text-slate-700 hover:text-[#50007c] hover:bg-slate-100 rounded-lg sm:rounded-xl transition-colors flex items-center cursor-pointer shrink-0"
+              className="relative h-9 sm:h-10 w-9 sm:w-10 flex items-center justify-center text-slate-700 hover:text-[#50007c] hover:bg-slate-100 rounded-xl transition-colors cursor-pointer shrink-0"
               aria-label={`View Cart (${cartCount} items)`}
+              title="View Shopping Cart"
             >
               <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
               {cartCount > 0 && (

@@ -592,11 +592,10 @@ export const MarketingView: React.FC = () => {
             <div>
               <p className="text-xs font-black text-slate-900 flex items-center gap-1.5">
                 <Bell className="w-3.5 h-3.5 text-amber-500" />
-                <Volume2 className="w-3.5 h-3.5 text-purple-700" />
-                <span>Instantly Broadcast Push Notification + Hindi Voice Alert to all App Devices</span>
+                <span>Instantly Broadcast Push Notification to all Active App Devices</span>
               </p>
               <p className="text-[11px] text-slate-600">
-                Whenever this offer is created, app devices will receive a system alert and speak: <em>"Dhyan dein! Shivani Graphics par naya offer aaya hai!"</em>
+                Whenever this offer is created, users will receive a broadcast system alert with the voucher code.
               </p>
             </div>
           </label>

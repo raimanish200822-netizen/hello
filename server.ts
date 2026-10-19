@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import fs from 'fs';
@@ -283,6 +284,19 @@ async function startServer() {
       appType: 'spa'
     });
     app.use(vite.middlewares);
+    app.use('*', async (req, res, next) => {
+      const url = req.originalUrl;
+      try {
+        let template = fs.readFileSync(path.resolve(process.cwd(), 'index.html'), 'utf-8');
+        template = await vite.transformIndexHtml(url, template);
+        res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+      } catch (e: any) {
+        if (vite?.ssrFixStacktrace) {
+          vite.ssrFixStacktrace(e);
+        }
+        next(e);
+      }
+    });
   } else {
     app.use(express.static(path.resolve(process.cwd(), 'dist')));
     app.get('*', (req, res) => {

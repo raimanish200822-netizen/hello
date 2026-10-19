@@ -17,7 +17,6 @@ import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { CartModal } from './components/CartModal';
 import { BulkQuoteModal } from './components/BulkQuoteModal';
 import { CompareModal } from './components/CompareModal';
-import { playWelcomeVoiceGreeting, hasBeenGreeted, isVoiceMuted } from './utils/voiceGreeting';
 import { addRecentlyViewedId } from './utils/recentlyViewed';
 import { useAdmin } from './context/AdminContext';
 import { OfflineIndicator } from './components/OfflineIndicator';
@@ -30,6 +29,7 @@ import { RefundPolicyPage } from './components/pages/RefundPolicyPage';
 import { ArtworkGuidelinesPage } from './components/pages/ArtworkGuidelinesPage';
 import { ContactPage } from './components/pages/ContactPage';
 import { FounderPage } from './components/pages/FounderPage';
+import { DownloadAppPage } from './components/pages/DownloadAppPage';
 
 export type AppView = 
   | 'home' 
@@ -44,7 +44,8 @@ export type AppView =
   | 'privacy'
   | 'refund-policy'
   | 'artwork-guidelines'
-  | 'contact';
+  | 'contact'
+  | 'download-app';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<AppView>('home');
@@ -75,7 +76,8 @@ export default function App() {
         'founder',
         'track', 
         'help',
-        'admin'
+        'admin',
+        'download-app'
       ];
       if (hash === 'adminlogin') {
         setCurrentView('admin');
@@ -92,25 +94,6 @@ export default function App() {
     return () => {
       window.removeEventListener('popstate', handleLocationChange);
       window.removeEventListener('hashchange', handleLocationChange);
-    };
-  }, []);
-
-  // Web Speech API Voice Greeting on First User Interaction (autoplay restriction compliant & once per session)
-  useEffect(() => {
-    const handleFirstInteraction = () => {
-      playWelcomeVoiceGreeting(false);
-      window.removeEventListener('click', handleFirstInteraction);
-      window.removeEventListener('touchstart', handleFirstInteraction);
-    };
-
-    if (!hasBeenGreeted() && !isVoiceMuted()) {
-      window.addEventListener('click', handleFirstInteraction, { passive: true });
-      window.addEventListener('touchstart', handleFirstInteraction, { passive: true });
-    }
-
-    return () => {
-      window.removeEventListener('click', handleFirstInteraction);
-      window.removeEventListener('touchstart', handleFirstInteraction);
     };
   }, []);
 
@@ -187,6 +170,7 @@ export default function App() {
         onNavigateAbout={() => navigateTo('about')}
         onNavigateFounder={() => navigateTo('founder')}
         onOpenCompare={() => setIsCompareOpen(true)}
+        onNavigateDownloadApp={() => navigateTo('download-app')}
       />
 
       {/* 3. Mobile Slide-out Drawer */}
@@ -323,6 +307,13 @@ export default function App() {
               <div className="py-8">
                 <HelpCenter isModal={false} />
               </div>
+            )}
+
+            {/* Dedicated Standalone Page: Download App */}
+            {currentView === 'download-app' && (
+              <DownloadAppPage
+                onBackToHome={() => navigateTo('home')}
+              />
             )}
 
 
