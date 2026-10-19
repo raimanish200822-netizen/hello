@@ -17,6 +17,7 @@ import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { CartModal } from './components/CartModal';
 import { BulkQuoteModal } from './components/BulkQuoteModal';
 import { CompareModal } from './components/CompareModal';
+import { playWelcomeVoiceGreeting, hasBeenGreeted, isVoiceMuted } from './utils/voiceGreeting';
 import { addRecentlyViewedId } from './utils/recentlyViewed';
 import { useAdmin } from './context/AdminContext';
 import { OfflineIndicator } from './components/OfflineIndicator';
@@ -94,6 +95,25 @@ export default function App() {
     return () => {
       window.removeEventListener('popstate', handleLocationChange);
       window.removeEventListener('hashchange', handleLocationChange);
+    };
+  }, []);
+
+  // Web Speech API Voice Greeting on First User Interaction (plays once per session)
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      playWelcomeVoiceGreeting(false);
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('touchstart', handleFirstInteraction);
+    };
+
+    if (!hasBeenGreeted() && !isVoiceMuted()) {
+      window.addEventListener('click', handleFirstInteraction, { passive: true });
+      window.addEventListener('touchstart', handleFirstInteraction, { passive: true });
+    }
+
+    return () => {
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('touchstart', handleFirstInteraction);
     };
   }, []);
 
