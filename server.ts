@@ -277,6 +277,9 @@ async function startServer() {
     }
   });
 
+  // Serve static public folder (sitemap.xml, robots.txt, images)
+  app.use(express.static(path.resolve(process.cwd(), 'public')));
+
   // Vite development middleware
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({

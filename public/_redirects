@@ -1,1 +1,6 @@
-/*    /index.html   200
+# Static Sitemap and Robots files (served directly, 200 without rewrite)
+/sitemap.xml    /sitemap.xml    200
+/robots.txt     /robots.txt     200
+
+# Single Page Application (SPA) catch-all rewrite rule
+/*              /index.html     200

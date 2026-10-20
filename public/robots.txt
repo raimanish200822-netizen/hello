@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# XML Sitemap for Google Search Console & Bing Webmaster
+Sitemap: https://www.shivanigraphics.com/sitemap.xml
